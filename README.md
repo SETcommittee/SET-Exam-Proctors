@@ -102,18 +102,18 @@ what they do.
    git init -b main
    git add -A
    git commit -m "Exam proctor duty site"
-   git remote add origin https://github.com/<you>/<repo>.git
+   git remote add origin https://github.com/farisyousef999/SET-Exam-Proctors.git
    git push -u origin main
    ```
 
 3. On GitHub: **Settings → Pages → Source → GitHub Actions**.
-4. The site appears at `https://<you>.github.io/<repo>/`.
+4. The site appears at `https://farisyousef999.github.io/SET-Exam-Proctors/`.
 
 Set your git identity once if you have not already:
 
 ```bash
 git config --global user.name "Faris Alsalem"
-git config --global user.email "you@htu.edu.jo"
+git config --global user.email "faris.alsalem@htu.edu.jo"
 ```
 
 ### A note on privacy
