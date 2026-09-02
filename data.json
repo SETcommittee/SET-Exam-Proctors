@@ -1,15 +1,15 @@
 {
- "generatedAt": "2026-09-02T13:16:45+03:00",
+ "generatedAt": "2026-09-02T13:18:02+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsx",
- "sourceModified": "2026-09-02T13:15:51+03:00",
+ "sourceModified": "2026-09-02T13:17:58+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 18,
   "totalStudents": 438,
   "seatsRequired": 33,
-  "seatsAssigned": 32,
-  "examsShort": 1,
-  "seatsShort": 1,
+  "seatsAssigned": 33,
+  "examsShort": 0,
+  "seatsShort": 0,
   "examsWithoutTarget": 0,
   "proctors": 21,
   "rosterSize": 26
@@ -337,9 +337,11 @@
    "room": "N-101, N-102",
    "students": 24,
    "required": 1,
-   "assigned": 0,
-   "shortfall": 1,
-   "proctors": [],
+   "assigned": 1,
+   "shortfall": 0,
+   "proctors": [
+    "Sara Alirshedat"
+   ],
    "notes": ""
   },
   {
@@ -606,9 +608,10 @@
   {
    "name": "Sara Alirshedat",
    "duties": [
-    "2026-09-07-engineering-design-13:30"
+    "2026-09-07-engineering-design-13:30",
+    "2026-09-13-introduction-to-ai-and-data-sciences-09:00"
    ],
-   "count": 1,
+   "count": 2,
    "onRoster": true
   },
   {
