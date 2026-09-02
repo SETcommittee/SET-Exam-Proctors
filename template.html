@@ -324,26 +324,6 @@
   .hint .big { font-size: 15px; font-weight: 600; color: var(--ink-2); }
   .empty { border: 1px dashed var(--line); border-radius: 12px; padding: 26px 18px; text-align: center; color: var(--muted); font-size: 14px; }
 
-  .notice {
-    display: flex; gap: 11px; align-items: flex-start; flex-wrap: wrap;
-    border-radius: 12px; padding: 12px 14px; margin: 18px 0 0;
-    font-size: 13.5px; border: 1px solid;
-  }
-  .notice.ok   { background: var(--ok-soft);   border-color: color-mix(in srgb, var(--ok) 26%, transparent); }
-  .notice.warn { background: var(--warn-soft); border-color: color-mix(in srgb, var(--warn) 26%, transparent); }
-  .notice .txt { flex: 1 1 260px; }
-  .notice.ok b   { color: var(--ok); }
-  .notice.warn b { color: var(--warn); }
-  .notice b { display: block; }
-  .notice .body { color: var(--ink-2); display: block; margin-top: 2px; }
-  .notice .body .m { font-family: var(--mono); font-size: 12.5px; }
-
-  footer.foot {
-    margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--line);
-    font-size: 12.5px; color: var(--muted); max-width: 68ch;
-  }
-  footer.foot code { font-family: var(--mono); font-size: 11.5px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
-
   @media (max-width: 560px) {
     h1 { font-size: 17px; }
     .stamp { margin-left: 0; width: 100%; }
@@ -371,9 +351,7 @@
 </header>
 
 <div class="wrap">
-  <div id="coverage"></div>
   <main id="panel" class="panel"></main>
-  <footer class="foot" id="foot"></footer>
 </div>
 
 <script>
@@ -773,33 +751,12 @@
     return h;
   }
 
-  /* ---------- coverage banner ---------- */
-  function coverage() {
-    var s = DATA.summary;
-    var short = DATA.exams.filter(function (e) { return e.shortfall; });
-    if (!short.length) {
-      return '<div class="notice ok"><span class="pill ok"><span class="dot"></span>Covered</span>' +
-        '<div class="txt"><b>Every exam is fully proctored.</b><span class="body">All ' + s.exams +
-        " sittings have their full complement — " + s.seatsAssigned + " of " + s.seatsRequired +
-        " proctor seats filled across " + s.proctors + " people.</span></div></div>";
-    }
-    return '<div class="notice warn"><span class="pill warn"><span class="dot"></span>Gaps</span>' +
-      '<div class="txt"><b>' + short.length + " exam" + (short.length > 1 ? "s" : "") + " still need" +
-      (short.length > 1 ? "" : "s") + " proctors — " + s.seatsShort + " seat" +
-      (s.seatsShort > 1 ? "s" : "") + " open.</b><span class=\"body\">" +
-      short.map(function (e) {
-        return '<span class="m">' + esc(prettyDate(e.date)) + " " + esc(e.time) + "</span> — " +
-          esc(e.course) + " (" + e.shortfall + " short)";
-      }).join("<br>") + "</span></div></div>";
-  }
-
   /* ---------- render ---------- */
   function render() {
     var nav = document.querySelector("nav.modes");
     Array.prototype.forEach.call(nav.querySelectorAll("button"), function (b) {
       b.setAttribute("aria-selected", String(b.dataset.mode === state.mode));
     });
-    document.getElementById("coverage").innerHTML = coverage();
     document.getElementById("panel").innerHTML =
       state.mode === "me" ? panelMe() : state.mode === "course" ? panelCourse() : panelAll();
     writeHash();
@@ -911,13 +868,6 @@
   var pad = function (n) { return (n < 10 ? "0" : "") + n; };
   document.getElementById("stamp").textContent =
     "updated " + gen.getDate() + " " + MONTHS[gen.getMonth()] + " " + pad(gen.getHours()) + ":" + pad(gen.getMinutes());
-
-  document.getElementById("foot").innerHTML =
-    "Built from <code>" + esc(DATA.sourceFile) + "</code>, covering exams from " +
-    esc(prettyDate(DATA.windowStart)) + " onwards. Proctor counts are recalculated from the " +
-    "assignment cells rather than the spreadsheet&rsquo;s <code>Still Needed</code> column, which " +
-    "has broken formulas on several rows. Spotted a mistake? Tell the Exam Committee — " +
-    "this page is generated and any edit here would be overwritten on the next update.";
 
   readHash();
   render();
