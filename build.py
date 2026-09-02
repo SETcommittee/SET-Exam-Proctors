@@ -23,7 +23,9 @@ import datetime as dt
 import json
 import os
 import re
+import shutil
 import sys
+import tempfile
 import warnings
 
 warnings.filterwarnings("ignore")  # openpyxl warns about unsupported extensions
@@ -210,12 +212,38 @@ def render_html(body):
     )
 
 
+def open_workbook(src):
+    """Load the workbook via a temporary copy.
+
+    Excel and LibreOffice hold the file open with sharing denied, so reading it
+    directly raises PermissionError while anyone has it open. Copying is still
+    permitted, so copy first and read the copy — this lets the sync run whether
+    or not the sheet happens to be open.
+    """
+    tmp = os.path.join(tempfile.gettempdir(), "_proctor_sync_%d.xlsx" % os.getpid())
+    try:
+        try:
+            shutil.copy2(src, tmp)
+        except (PermissionError, OSError) as err:
+            sys.exit(
+                "Could not read the workbook:\n  %s\n\n%s\n\n"
+                "If it is open, save and close it, then run this again." % (src, err)
+            )
+        return openpyxl.load_workbook(tmp, data_only=True)
+    finally:
+        if os.path.exists(tmp):
+            try:
+                os.remove(tmp)
+            except OSError:
+                pass
+
+
 def main():
     src = sys.argv[1] if len(sys.argv) > 1 else SOURCE_XLSX
     if not os.path.exists(src):
         sys.exit("Source workbook not found:\n  %s" % src)
 
-    wb = openpyxl.load_workbook(src, data_only=True)
+    wb = open_workbook(src)
     exams, skipped = load_exams(wb)
     roster = load_roster(wb)
     short = [e for e in exams if e["shortfall"]]
