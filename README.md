@@ -102,12 +102,12 @@ what they do.
    git init -b main
    git add -A
    git commit -m "Exam proctor duty site"
-   git remote add origin https://github.com/farisyousef999/SET-Exam-Proctors.git
+   git remote add origin https://github.com/faris-alsalem/SET-Exam-Proctors.git
    git push -u origin main
    ```
 
 3. On GitHub: **Settings → Pages → Source → GitHub Actions**.
-4. The site appears at `https://farisyousef999.github.io/SET-Exam-Proctors/`.
+4. The site appears at `https://faris-alsalem.github.io/SET-Exam-Proctors/`.
 
 Set your git identity once if you have not already:
 
