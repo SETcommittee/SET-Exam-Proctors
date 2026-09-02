@@ -198,6 +198,12 @@ def render_html(body):
         '<meta name="viewport" content="width=device-width, initial-scale=1">\n'
         '<meta name="description" content="Proctor duty schedule for the HTU School of '
         'Engineering and Technology final exam period.">\n'
+        # The page names staff and says where they will be. It is hosted on a
+        # public GitHub Pages site, so keep it out of search results: nobody
+        # should reach it by googling a colleague's name. robots.txt says the
+        # same thing for crawlers that check it first.
+        '<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">\n'
+        '<meta name="googlebot" content="noindex, nofollow">\n'
         "<style>img{max-width:100%}[hidden]{display:none!important}</style>\n"
         + body
         + "\n</body>\n</html>\n"
