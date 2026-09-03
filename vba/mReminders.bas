@@ -83,6 +83,9 @@ Public Function RefreshRemindersCore() As Long
     Set wsE = ThisWorkbook.Worksheets(SH_EXAM)
     Set wsR = ThisWorkbook.Worksheets(SH_REM)
 
+    ' Any exit from here on must put these back, or Excel is left looking
+    ' frozen with a stale screen and dead click handlers.
+    On Error GoTo Restore
     Application.ScreenUpdating = False
     Application.EnableEvents = False
 
@@ -180,10 +183,15 @@ Public Function RefreshRemindersCore() As Long
 
     wsR.Rows(FIRST_DATA_ROW & ":" & (rR - 1)).RowHeight = 16
 
+    RefreshRemindersCore = rR - FIRST_DATA_ROW
+
+Restore:
     Application.EnableEvents = True
     Application.ScreenUpdating = True
-
-    RefreshRemindersCore = rR - FIRST_DATA_ROW
+    If Err.Number <> 0 Then
+        MsgBox "Could not rebuild the list." & vbCrLf & vbCrLf & _
+               Err.Description, vbCritical + vbSystemModal, "Reminders"
+    End If
 End Function
 
 
@@ -299,12 +307,15 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
                         "To:" & vbCrLf & Replace(toList, "; ", vbCrLf) & vbCrLf & _
                         IIf(Len(ccList) > 0, vbCrLf & "Cc:" & vbCrLf & ccList & vbCrLf, "") & _
                         IIf(Len(missing) > 0, vbCrLf & "NO ADDRESS FOR: " & missing & vbCrLf, ""), _
-                        vbYesNo + vbQuestion, "Confirm reminder")
+                        vbYesNo + vbQuestion + vbSystemModal, "Confirm reminder")
         If answer <> vbYes Then Exit Function
     End If
 
     On Error GoTo NoOutlook
+    Application.StatusBar = "Contacting Outlook..."
     Set ol = GetOutlook()
+    If ol Is Nothing Then GoTo NoOutlook
+
     Set mail = ol.CreateItem(0)
     With mail
         .To = toList
@@ -313,10 +324,14 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
         .body = body
         If UCase$(SEND_MODE) = "DISPLAY" Then
             .Display
+            On Error Resume Next
+            .GetInspector.Activate      ' bring it in front of Excel
+            On Error GoTo NoOutlook
         Else
             .Send
         End If
     End With
+    Application.StatusBar = False
     On Error GoTo 0
 
     wsR.Cells(r, C_SENTLOG).Value = "Sent " & Format$(Now(), "d mmm hh:mm")
@@ -325,21 +340,88 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
     Exit Function
 
 NoOutlook:
-    MsgBox "Outlook could not be reached." & vbCrLf & vbCrLf & _
-           "Open Outlook and try again." & vbCrLf & _
-           "(" & Err.Description & ")", vbCritical, "Outlook not available"
+    Application.StatusBar = False
+    MsgBox "Outlook could not be reached, so nothing was sent." & vbCrLf & vbCrLf & _
+           "Open Outlook yourself and wait until the Inbox is showing, " & _
+           "then try again. Outlook needs to be running before this button " & _
+           "is used." & vbCrLf & vbCrLf & _
+           "(" & Err.Description & ")", _
+           vbCritical + vbSystemModal, "Outlook not available"
 End Function
 
 
+' Getting hold of Outlook is the fragile part of this whole workbook.
+'
+' If Outlook is not already open, CreateObject starts it with no window. In
+' that state it sits waiting on a sign-in prompt it has nowhere to display,
+' and every later call blocks forever - Excel just appears to freeze. So:
+' log the MAPI session on explicitly, and if there is no Explorer window,
+' open one. Then Outlook is properly awake before we hand it a message.
 Private Function GetOutlook() As Object
+    Dim ol As Object, ns As Object
+
+    Set GetOutlook = Nothing
+
     On Error Resume Next
-    Set GetOutlook = GetObject(, "Outlook.Application")
-    If GetOutlook Is Nothing Then
-        Err.Clear
-        Set GetOutlook = CreateObject("Outlook.Application")
+    Set ol = GetObject(, "Outlook.Application")   ' attach to a running copy
+    On Error GoTo 0
+
+    If ol Is Nothing Then
+        On Error Resume Next
+        Set ol = CreateObject("Outlook.Application")
+        On Error GoTo 0
+    End If
+    If ol Is Nothing Then Exit Function
+
+    On Error Resume Next
+    Set ns = ol.GetNamespace("MAPI")
+    ns.Logon "", "", False, False
+    If ol.Explorers.Count = 0 Then
+        ol.Explorers.Add(ns.GetDefaultFolder(6), 0).Display   ' 6 = Inbox
     End If
     On Error GoTo 0
+
+    Set GetOutlook = ol
 End Function
+
+
+' Safe check - creates nothing, sends nothing. Use this if a send ever seems
+' to hang, to find out whether Outlook is the problem.
+Public Sub TestOutlookConnection()
+    Dim ol As Object, ns As Object, who As String, wins As Long
+
+    On Error GoTo Failed
+    Set ol = GetOutlook()
+    If ol Is Nothing Then GoTo Failed
+
+    Set ns = ol.GetNamespace("MAPI")
+    who = CStr(ns.CurrentUser)
+    wins = ol.Explorers.Count
+
+    MsgBox "Outlook is reachable." & vbCrLf & vbCrLf & _
+           "Signed in as: " & who & vbCrLf & _
+           "Open windows: " & wins, _
+           vbInformation + vbSystemModal, "Outlook check"
+    Exit Sub
+
+Failed:
+    MsgBox "Could not reach Outlook." & vbCrLf & vbCrLf & _
+           "Open Outlook yourself, wait until the Inbox is showing, " & _
+           "then try again." & vbCrLf & vbCrLf & _
+           "(" & Err.Description & ")", _
+           vbCritical + vbSystemModal, "Outlook check"
+End Sub
+
+
+' If a macro ever stops halfway, Excel can be left with screen updating or
+' events switched off, which looks exactly like a freeze. Run this to undo it.
+Public Sub RestoreExcel()
+    Application.ScreenUpdating = True
+    Application.EnableEvents = True
+    Application.Cursor = xlDefault
+    Application.StatusBar = False
+    MsgBox "Excel restored.", vbInformation + vbSystemModal, "Reset"
+End Sub
 
 
 ' ---------------------------------------------------------------------------
@@ -377,7 +459,10 @@ Public Sub PreviewSelectedReminder()
     End If
 
     On Error GoTo NoOutlook
+    Application.StatusBar = "Contacting Outlook..."
     Set ol = GetOutlook()
+    If ol Is Nothing Then GoTo NoOutlook
+
     Set mail = ol.CreateItem(0)
     With mail
         .To = toList
@@ -385,12 +470,20 @@ Public Sub PreviewSelectedReminder()
         .Subject = subj
         .body = body
         .Display                      ' always opens, never sends
+        On Error Resume Next
+        .GetInspector.Activate        ' otherwise it can open behind Excel
+        On Error GoTo NoOutlook
     End With
+    Application.StatusBar = False
     Exit Sub
 
 NoOutlook:
-    MsgBox "Outlook could not be reached." & vbCrLf & Err.Description, _
-           vbCritical, "Outlook not available"
+    Application.StatusBar = False
+    MsgBox "Outlook could not be reached." & vbCrLf & vbCrLf & _
+           "Open Outlook yourself and wait until the Inbox is showing, " & _
+           "then try again." & vbCrLf & vbCrLf & _
+           "(" & Err.Description & ")", _
+           vbCritical + vbSystemModal, "Outlook not available"
 End Sub
 
 
