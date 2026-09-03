@@ -18,6 +18,12 @@ Private Const SH_EXAM As String = "Exam"
 Private Const SH_MAIL As String = "Emails"
 Private Const SH_REM As String = "Reminders"
 
+' Wording of the email lives on this sheet so it can be edited without
+' opening the code. Blank cells fall back to the built-in text below.
+Private Const SH_TPL As String = "Message"
+Private Const CELL_SUBJ As String = "B4"
+Private Const CELL_BODY As String = "B6"
+
 Private Const FIRST_DATA_ROW As Long = 10   ' first exam row on Reminders
 Private Const EXAM_FIRST_ROW As Long = 6    ' first exam row on Exam sheet
 
@@ -247,9 +253,94 @@ End Function
 ' ---------------------------------------------------------------------------
 '  Build the message for one row
 ' ---------------------------------------------------------------------------
+' ---------------------------------------------------------------------------
+'  The wording, and the placeholders it can use
+' ---------------------------------------------------------------------------
+
+Public Function DefaultSubject() As String
+    DefaultSubject = "Proctoring reminder - {course}, {day} {date} at {time}"
+End Function
+
+
+Public Function DefaultBody() As String
+    DefaultBody = _
+        "Dear colleagues," & vbCrLf & vbCrLf & _
+        "This is a reminder of the exam below and your proctoring duty for it." & vbCrLf & vbCrLf & _
+        "Course:       {course}" & vbCrLf & _
+        "Date:         {day}, {longdate}" & vbCrLf & _
+        "Time:         {time}" & vbCrLf & _
+        "Room:         {room}" & vbCrLf & vbCrLf & _
+        "Proctors:" & vbCrLf & _
+        "{proctors}" & vbCrLf & _
+        "Please arrive 15 minutes before the start time." & vbCrLf & vbCrLf & _
+        "If you cannot attend, reply to this message as early as you can so a" & vbCrLf & _
+        "replacement can be arranged." & vbCrLf & vbCrLf & _
+        "Thank you," & vbCrLf & _
+        "Exam Committee" & vbCrLf & _
+        "School of Engineering and Technology"
+End Function
+
+
+' Read a template cell, falling back to the built-in wording when the Message
+' sheet is missing or the cell has been left empty.
+Private Function Template(ByVal whichCell As String, ByVal fallback As String) As String
+    Dim ws As Worksheet, v As String
+
+    On Error Resume Next
+    Set ws = ThisWorkbook.Worksheets(SH_TPL)
+    On Error GoTo 0
+    If ws Is Nothing Then
+        Template = fallback
+        Exit Function
+    End If
+
+    v = CStr(ws.Range(whichCell).Value)
+    If Len(Trim$(v)) = 0 Then v = fallback
+    Template = v
+End Function
+
+
+' The numbered proctor list, as its own block so {proctors} can sit anywhere.
+Private Function ProctorBlock(ByVal r As Long) As String
+    Dim wsR As Worksheet, parts() As String, i As Long, out As String
+    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+
+    parts = Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")
+    For i = LBound(parts) To UBound(parts)
+        If Len(Trim$(parts(i))) > 0 Then
+            out = out & "  " & (i + 1) & ". " & Trim$(parts(i)) & vbCrLf
+        End If
+    Next i
+    ProctorBlock = out
+End Function
+
+
+' Swap every {placeholder} for this row's value.
+Private Function FillTemplate(ByVal tpl As String, ByVal r As Long) As String
+    Dim wsR As Worksheet, s As String, d As Variant
+    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+
+    s = tpl
+    d = wsR.Cells(r, C_DATE).Value
+
+    s = Replace(s, "{course}", CStr(wsR.Cells(r, C_COURSE).Value))
+    s = Replace(s, "{day}", CStr(wsR.Cells(r, C_DAY).Value))
+    s = Replace(s, "{date}", IIf(IsDate(d), Format$(d, "d mmm yyyy"), ""))
+    s = Replace(s, "{longdate}", IIf(IsDate(d), Format$(d, "d mmmm yyyy"), ""))
+    s = Replace(s, "{time}", CStr(wsR.Cells(r, C_TIME).Value))
+    s = Replace(s, "{room}", CStr(wsR.Cells(r, C_ROOM).Value))
+    s = Replace(s, "{coordinator}", CStr(wsR.Cells(r, C_COORD).Value))
+    s = Replace(s, "{proctorlist}", CStr(wsR.Cells(r, C_PROCS).Value))
+    s = Replace(s, "{proctors}", ProctorBlock(r))
+    s = Replace(s, "{count}", CStr(UBound(Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")) + 1))
+
+    FillTemplate = s
+End Function
+
+
 Public Sub BuildMessage(ByVal r As Long, ByRef toList As String, ByRef ccList As String, _
                         ByRef subj As String, ByRef body As String)
-    Dim wsR As Worksheet, parts() As String, i As Long
+    Dim wsR As Worksheet
     Set wsR = ThisWorkbook.Worksheets(SH_REM)
 
     toList = Trim$(CStr(wsR.Cells(r, C_TO).Value))
@@ -257,34 +348,30 @@ Public Sub BuildMessage(ByVal r As Long, ByRef toList As String, ByRef ccList As
     ' the list has not been refreshed since. MergeCc will not duplicate.
     ccList = MergeCc(Trim$(CStr(wsR.Cells(r, C_CC).Value)), AlwaysCcList(), toList)
 
-    subj = "Proctoring reminder - " & wsR.Cells(r, C_COURSE).Value & _
-           ", " & wsR.Cells(r, C_DAY).Value & " " & _
-           Format$(wsR.Cells(r, C_DATE).Value, "d mmm yyyy") & _
-           " at " & wsR.Cells(r, C_TIME).Value
+    subj = FillTemplate(Template(CELL_SUBJ, DefaultSubject()), r)
+    body = FillTemplate(Template(CELL_BODY, DefaultBody()), r)
+End Sub
 
-    body = "Dear colleagues," & vbCrLf & vbCrLf & _
-           "This is a reminder of the exam below and your proctoring duty for it." & vbCrLf & vbCrLf & _
-           "Course:       " & wsR.Cells(r, C_COURSE).Value & vbCrLf & _
-           "Date:         " & wsR.Cells(r, C_DAY).Value & ", " & _
-                              Format$(wsR.Cells(r, C_DATE).Value, "d mmmm yyyy") & vbCrLf & _
-           "Time:         " & wsR.Cells(r, C_TIME).Value & vbCrLf & _
-           "Room:         " & wsR.Cells(r, C_ROOM).Value & vbCrLf & vbCrLf & _
-           "Proctors:" & vbCrLf
 
-    parts = Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")
-    For i = LBound(parts) To UBound(parts)
-        If Len(Trim$(parts(i))) > 0 Then
-            body = body & "  " & (i + 1) & ". " & parts(i) & vbCrLf
-        End If
-    Next i
+' Button target: put the built-in wording back on the Message sheet.
+Public Sub ResetMessageTemplate()
+    Dim ws As Worksheet
 
-    body = body & vbCrLf & _
-           "Please arrive 15 minutes before the start time." & vbCrLf & vbCrLf & _
-           "If you cannot attend, reply to this message as early as you can so a" & vbCrLf & _
-           "replacement can be arranged." & vbCrLf & vbCrLf & _
-           "Thank you," & vbCrLf & _
-           "Exam Committee" & vbCrLf & _
-           "School of Engineering and Technology"
+    On Error Resume Next
+    Set ws = ThisWorkbook.Worksheets(SH_TPL)
+    On Error GoTo 0
+    If ws Is Nothing Then
+        MsgBox "The Message sheet is missing.", vbExclamation + vbSystemModal, "Template"
+        Exit Sub
+    End If
+
+    If MsgBox("Replace the subject and body with the original wording?" & vbCrLf & vbCrLf & _
+              "Anything you have written there will be lost.", _
+              vbYesNo + vbExclamation + vbSystemModal, "Reset wording") <> vbYes Then Exit Sub
+
+    ws.Range(CELL_SUBJ).Value = DefaultSubject()
+    ws.Range(CELL_BODY).Value = DefaultBody()
+    MsgBox "Original wording restored.", vbInformation + vbSystemModal, "Template"
 End Sub
 
 

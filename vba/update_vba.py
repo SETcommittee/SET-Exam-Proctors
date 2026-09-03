@@ -38,6 +38,93 @@ ALL_BUTTONS = [
 ]
 
 
+PLACEHOLDERS = [
+    ("{course}", "Engineering Math"),
+    ("{day}", "Monday"),
+    ("{date}", "7 Sep 2026"),
+    ("{longdate}", "7 September 2026"),
+    ("{time}", "11:00 - 13:30"),
+    ("{room}", "N-301, N-303, N-304, N-306"),
+    ("{coordinator}", "Rami Hammad"),
+    ("{proctors}", "a numbered list, one proctor per line"),
+    ("{proctorlist}", "the same names on one line, comma separated"),
+    ("{count}", "how many proctors"),
+]
+
+
+def build_message_sheet(wb, excel):
+    """Create the Message sheet, without disturbing wording already written."""
+    existing = None
+    for sh in wb.Worksheets:
+        if sh.Name == "Message":
+            existing = sh
+            break
+
+    fresh = existing is None
+    ws = existing or wb.Worksheets.Add(After=wb.Worksheets(wb.Worksheets.Count))
+    if fresh:
+        ws.Name = "Message"
+
+    ws.Range("A1").Value = "Reminder wording"
+    ws.Range("A1").Font.Size = 15
+    ws.Range("A1").Font.Bold = True
+    ws.Range("A2").Value = (
+        "Edit the subject and body below like any other cell. Anything in curly "
+        "brackets is swapped for that exam's details when the email is built. "
+        "Leave a cell empty to fall back to the original wording."
+    )
+    ws.Range("A2").Font.Color = 0x8A7266
+
+    ws.Range("A4").Value = "SUBJECT"
+    ws.Range("A6").Value = "BODY"
+    for cell in ("A4", "A6"):
+        ws.Range(cell).Font.Bold = True
+        ws.Range(cell).Font.Color = 0x8A7266
+        ws.Range(cell).VerticalAlignment = -4160
+
+    for rng in ("B4:F4", "B6:F6"):
+        try:
+            ws.Range(rng).UnMerge()
+        except Exception:
+            pass
+        ws.Range(rng).Merge()
+        ws.Range(rng).WrapText = True
+        ws.Range(rng).VerticalAlignment = -4160
+        ws.Range(rng).Interior.Color = 0xF2FAF2
+        ws.Range(rng).Borders.LineStyle = 1
+
+    ws.Rows(4).RowHeight = 32
+    ws.Rows(6).RowHeight = 300
+    for i, w in enumerate([12, 18, 18, 18, 18, 18], start=1):
+        ws.Columns(i).ColumnWidth = w
+
+    # Placeholder reference, to the right of the body box.
+    ws.Range("H3").Value = "You can use:"
+    ws.Range("H3").Font.Bold = True
+    for i, (token, meaning) in enumerate(PLACEHOLDERS, start=4):
+        ws.Cells(i, 8).Value = token
+        ws.Cells(i, 8).Font.Name = "Consolas"
+        ws.Cells(i, 8).Font.Color = 0x0E3D40
+        ws.Cells(i, 9).Value = meaning
+        ws.Cells(i, 9).Font.Color = 0x8A7266
+    ws.Columns(8).ColumnWidth = 16
+    ws.Columns(9).ColumnWidth = 46
+
+    if fresh or not str(ws.Range("B4").Value or "").strip():
+        ws.Range("B4").Value = excel.Run("DefaultSubject")
+    if fresh or not str(ws.Range("B6").Value or "").strip():
+        ws.Range("B6").Value = excel.Run("DefaultBody")
+
+    for b in list(ws.Buttons()):
+        b.Delete()
+    btn = ws.Buttons().Add(ws.Range("H16").Left, ws.Range("H16").Top, 170, 26)
+    btn.Caption = "Restore original wording"
+    btn.OnAction = "ResetMessageTemplate"
+    btn.Font.Size = 10
+
+    print("Message sheet %s" % ("created" if fresh else "refreshed (wording kept)"))
+
+
 def main():
     if not os.path.exists(XLSM):
         sys.exit("Not found: %s" % XLSM)
@@ -117,6 +204,8 @@ def main():
             ws.Range("B3").Value = SEND_FROM_DEFAULT
         ws.Range("E3").Value = str(ws.Range("E3").Value or "")
         ws.Rows(3).RowHeight = 19
+
+        build_message_sheet(wb, excel)
 
         wb.Save()
         wb.Close(SaveChanges=False)
