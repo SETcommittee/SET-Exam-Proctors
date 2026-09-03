@@ -24,16 +24,15 @@ BAS_SHEET = os.path.join(HERE, "vba_sheet.bas")
 
 XL_STD_MODULE = 1
 
-EXTRA_BUTTONS = [
-    ("Check Outlook", "TestOutlookConnection"),
-    ("Unfreeze Excel", "RestoreExcel"),
-]
 ALL_BUTTONS = [
     ("Refresh list", "RefreshReminders"),
     ("Send for selected row", "SendSelectedReminder"),
     ("Preview in Outlook", "PreviewSelectedReminder"),
     ("Send all upcoming", "SendAllUpcoming"),
-] + EXTRA_BUTTONS
+    ("Check Outlook", "TestOutlookConnection"),
+    ("Load send-from accounts", "RefreshSendAccounts"),
+    ("Unfreeze Excel", "RestoreExcel"),
+]
 
 
 def main():
@@ -93,6 +92,16 @@ def main():
             "Open Outlook first, then click a row to preview and double-click its "
             "Send cell. If anything seems stuck, press Unfreeze Excel."
         )
+
+        # "Send from" control
+        ws.Range("A3").Value = "SEND FROM"
+        ws.Range("A3").Font.Bold = True
+        ws.Range("A3").Font.Color = 0x8A7266
+        if not str(ws.Range("B3").Value or "").strip():
+            ws.Range("B3").Value = "(default account)"
+        ws.Range("B3").Interior.Color = 0xF2FAF2
+        ws.Range("B3").Borders.LineStyle = 1
+        ws.Rows(3).RowHeight = 18
 
         wb.Save()
         wb.Close(SaveChanges=False)

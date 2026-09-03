@@ -21,6 +21,11 @@ Private Const SH_REM As String = "Reminders"
 Private Const FIRST_DATA_ROW As Long = 10   ' first exam row on Reminders
 Private Const EXAM_FIRST_ROW As Long = 6    ' first exam row on Exam sheet
 
+' Cell holding the address to send from. Blank or "(default)" uses whichever
+' account Outlook would normally use.
+Private Const CELL_SENDFROM As String = "B3"
+Private Const SENDFROM_DEFAULT As String = "(default account)"
+
 ' Columns on the Reminders sheet
 Private Const C_DATE As Long = 1
 Private Const C_DAY As Long = 2
@@ -304,6 +309,7 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
                         wsR.Cells(r, C_COURSE).Value & vbCrLf & _
                         Format$(wsR.Cells(r, C_DATE).Value, "d mmm yyyy") & "  " & _
                         wsR.Cells(r, C_TIME).Value & vbCrLf & vbCrLf & _
+                        "From: " & SenderLabel() & vbCrLf & vbCrLf & _
                         "To:" & vbCrLf & Replace(toList, "; ", vbCrLf) & vbCrLf & _
                         IIf(Len(ccList) > 0, vbCrLf & "Cc:" & vbCrLf & ccList & vbCrLf, "") & _
                         IIf(Len(missing) > 0, vbCrLf & "NO ADDRESS FOR: " & missing & vbCrLf, ""), _
@@ -317,6 +323,7 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
     If ol Is Nothing Then GoTo NoOutlook
 
     Set mail = ol.CreateItem(0)
+    ApplySender mail, ol
     With mail
         .To = toList
         If Len(ccList) > 0 Then .CC = ccList
@@ -383,6 +390,93 @@ Private Function GetOutlook() As Object
 
     Set GetOutlook = ol
 End Function
+
+
+' ---------------------------------------------------------------------------
+'  Which address the reminders are sent from
+' ---------------------------------------------------------------------------
+
+' Apply the address chosen in B3 to one message.
+'
+' If it matches a configured Outlook account, send through that account. If it
+' does not, treat it as an alias or shared mailbox and set it as the "from"
+' instead - that works when the account has Send As rights, and Outlook will
+' reject it clearly if not.
+Private Sub ApplySender(ByVal mail As Object, ByVal ol As Object)
+    Dim want As String, i As Long, accs As Object
+
+    want = Trim$(CStr(ThisWorkbook.Worksheets(SH_REM).Range(CELL_SENDFROM).Value))
+    If Len(want) = 0 Then Exit Sub
+    If StrComp(want, SENDFROM_DEFAULT, vbTextCompare) = 0 Then Exit Sub
+
+    On Error Resume Next
+    Set accs = ol.Session.Accounts
+    If Not accs Is Nothing Then
+        For i = 1 To accs.Count
+            If StrComp(CStr(accs.Item(i).SmtpAddress), want, vbTextCompare) = 0 Then
+                Set mail.SendUsingAccount = accs.Item(i)
+                Exit Sub
+            End If
+        Next i
+    End If
+    mail.SentOnBehalfOfName = want
+    On Error GoTo 0
+End Sub
+
+
+Private Function SenderLabel() As String
+    SenderLabel = Trim$(CStr(ThisWorkbook.Worksheets(SH_REM).Range(CELL_SENDFROM).Value))
+    If Len(SenderLabel) = 0 Then SenderLabel = SENDFROM_DEFAULT
+End Function
+
+
+' Read the accounts out of Outlook and turn B3 into a dropdown of them.
+Public Sub RefreshSendAccounts()
+    Dim ol As Object, accs As Object, i As Long
+    Dim list As String, smtp As String, ws As Worksheet
+
+    On Error GoTo Failed
+    Set ws = ThisWorkbook.Worksheets(SH_REM)
+    Set ol = GetOutlook()
+    If ol Is Nothing Then GoTo Failed
+
+    Set accs = ol.Session.Accounts
+    list = SENDFROM_DEFAULT
+    For i = 1 To accs.Count
+        smtp = ""
+        On Error Resume Next
+        smtp = CStr(accs.Item(i).SmtpAddress)
+        On Error GoTo Failed
+        If Len(smtp) > 0 Then list = list & "," & smtp
+    Next i
+
+    With ws.Range(CELL_SENDFROM).Validation
+        .Delete
+        .Add Type:=3, AlertStyle:=2, Operator:=1, Formula1:=list   ' xlValidateList
+        .IgnoreBlank = True
+        .InCellDropdown = True
+        .InputTitle = "Send from"
+        .InputMessage = "Pick which account the reminders are sent from."
+    End With
+
+    If Len(Trim$(CStr(ws.Range(CELL_SENDFROM).Value))) = 0 Then
+        ws.Range(CELL_SENDFROM).Value = SENDFROM_DEFAULT
+    End If
+
+    MsgBox "Found " & accs.Count & " account(s) in Outlook." & vbCrLf & vbCrLf & _
+           Replace(Mid$(list, Len(SENDFROM_DEFAULT) + 2), ",", vbCrLf) & vbCrLf & vbCrLf & _
+           "Pick one in the 'Send from' box." & vbCrLf & vbCrLf & _
+           "Only accounts added to the classic Outlook desktop app appear here. " & _
+           "An address that lives only in the new Outlook app cannot be used, " & _
+           "but you can still type an alias or shared mailbox into the box by hand.", _
+           vbInformation + vbSystemModal, "Send from"
+    Exit Sub
+
+Failed:
+    MsgBox "Could not read the Outlook accounts." & vbCrLf & vbCrLf & _
+           "Open Outlook and try again." & vbCrLf & "(" & Err.Description & ")", _
+           vbCritical + vbSystemModal, "Send from"
+End Sub
 
 
 ' Safe check - creates nothing, sends nothing. Use this if a send ever seems
@@ -464,6 +558,7 @@ Public Sub PreviewSelectedReminder()
     If ol Is Nothing Then GoTo NoOutlook
 
     Set mail = ol.CreateItem(0)
+    ApplySender mail, ol
     With mail
         .To = toList
         If Len(ccList) > 0 Then .CC = ccList
