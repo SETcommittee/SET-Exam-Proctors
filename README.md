@@ -124,6 +124,64 @@ room allocations and student counts. If that should not be on the open web,
 either publish it somewhere behind the university login instead, or ask the
 committee first.
 
+## Reminder emails
+
+The committee's workbook now has a macro-enabled twin,
+`Proctor Schedule by Date.xlsm`, in the same folder. **That is the file to
+edit from now on** — `build.py` reads it in preference to the `.xlsx`.
+
+It adds two sheets:
+
+**`Emails`** — all 43 people who appear as a proctor or a coordinator, with a
+column for their address. The macro reads only column C. Column D holds a
+`firstname.lastname@htu.edu.jo` guess to save typing; check each one before
+copying it across. Column E flags people who appear under more than one
+spelling (e.g. `Rajaie Nassar` / `Rajaie Ghassan Fawzi Nassar` /
+`Rajaee Nassaer` are one person) — give each spelling the same address.
+
+**`Reminders`** — one row per exam, with recipients resolved from the `Emails`
+sheet. Click any row and the box at the top shows exactly what would be sent.
+Then either double-click that row's **Send** cell, or use the buttons:
+
+| Button | What it does |
+|---|---|
+| Refresh list | Rebuilds the rows from the `Exam` sheet. Run after any change. |
+| Send for selected row | Sends the reminder for whichever row the cursor is on |
+| Preview in Outlook | Opens the email in Outlook without sending |
+| Send all upcoming | Sends every future exam's reminder, one email each |
+
+The **No address for** column lists anyone whose address is still missing, in
+red. Those people are silently left off the email, so keep that column empty.
+
+### Sending behaviour
+
+Two constants at the top of the `mReminders` module control this:
+
+```vba
+Public Const CONFIRM_BEFORE_SEND As Boolean = True
+Public Const SEND_MODE As String = "SEND"
+```
+
+`CONFIRM_BEFORE_SEND` shows a dialog listing every recipient before anything
+leaves. Set it to `False` for true one-click sending once you trust the
+addresses. `SEND_MODE` can be `"DISPLAY"` instead of `"SEND"` to make every
+button open the message in Outlook rather than send it.
+
+Outlook must be installed and signed in — it is used to send, so the messages
+land in your Sent Items as normal.
+
+### Rebuilding the workbook
+
+If the `.xlsm` is lost or the macros need changing, edit the `.bas` files in
+`vba/` and run:
+
+```bash
+py -3 vba/make_xlsm.py
+```
+
+That regenerates the `.xlsm` from the `.xlsx` plus the VBA. It never modifies
+the `.xlsx`.
+
 ## Fixing the spreadsheet
 
 The site works around the broken formulas, but the workbook itself still shows

@@ -37,10 +37,25 @@ except ImportError:
 
 # --- configuration -----------------------------------------------------------
 
-SOURCE_XLSX = os.environ.get("PROCTOR_XLSX") or (
+_FOLDER = (
     r"C:\Users\Faris.Alsalem\OneDrive - AL-Hussien bin Abdullah Technical University"
-    r"\Faris HTU\Exam Committee\Proctor Schedule by Date.xlsx"
+    r"\Faris HTU\Exam Committee"
 )
+
+
+def _default_source():
+    """Prefer the macro-enabled workbook, which is the one being edited now.
+
+    The .xlsm carries the reminder sheets and is the committee's working copy;
+    the .xlsx is the older plain version. Reading whichever is newer would be
+    fragile, so prefer the .xlsm outright and fall back to the .xlsx.
+    """
+    xlsm = os.path.join(_FOLDER, "Proctor Schedule by Date.xlsm")
+    xlsx = os.path.join(_FOLDER, "Proctor Schedule by Date.xlsx")
+    return xlsm if os.path.exists(xlsm) else xlsx
+
+
+SOURCE_XLSX = os.environ.get("PROCTOR_XLSX") or _default_source()
 
 # The committee only tracks the final exam period; earlier sittings are done.
 WINDOW_START = os.environ.get("WINDOW_START", "2026-09-03")
