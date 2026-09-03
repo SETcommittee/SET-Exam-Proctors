@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-03T14:31:03+03:00",
+ "generatedAt": "2026-09-03T14:35:52+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-03T14:29:47+03:00",
+ "sourceModified": "2026-09-03T14:35:47+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
@@ -163,7 +163,7 @@
     "Jamal alomari",
     "Farah Almemeh",
     "Anas Alshoubaki",
-    "Mohammad Alzubi"
+    "Faris Alsalem"
    ],
    "notes": ""
   },
@@ -509,9 +509,10 @@
   {
    "name": "Faris Alsalem",
    "duties": [
+    "2026-09-06-functional-maths-13:30",
     "2026-09-07-engineering-design-13:30"
    ],
-   "count": 1,
+   "count": 2,
    "onRoster": true
   },
   {
@@ -576,10 +577,9 @@
   {
    "name": "Mohammad Alzubi",
    "duties": [
-    "2026-09-06-functional-maths-13:30",
     "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"
    ],
-   "count": 2,
+   "count": 1,
    "onRoster": true
   },
   {
