@@ -26,6 +26,10 @@ Private Const EXAM_FIRST_ROW As Long = 6    ' first exam row on Exam sheet
 Private Const CELL_SENDFROM As String = "B3"
 Private Const SENDFROM_DEFAULT As String = "(default account)"
 
+' Addresses copied on every single reminder, separated by ; or , - for people
+' who should see all of them (a chair, an assistant, the committee mailbox).
+Private Const CELL_ALWAYSCC As String = "E3"
+
 ' Columns on the Reminders sheet
 Private Const C_DATE As Long = 1
 Private Const C_DAY As Long = 2
@@ -161,6 +165,8 @@ Public Function RefreshRemindersCore() As Long
                 IIf(Len(Trim$(CStr(wsE.Cells(rE, 8).Value))) = 0, "TBC", wsE.Cells(rE, 8).Value)
             wsR.Cells(rR, C_COORD).Value = coord
             wsR.Cells(rR, C_PROCS).Value = procs
+            ccList = MergeCc(ccList, AlwaysCcList(), toList)
+
             wsR.Cells(rR, C_TO).Value = toList
             wsR.Cells(rR, C_CC).Value = ccList
             wsR.Cells(rR, C_MISSING).Value = missing
@@ -247,7 +253,9 @@ Public Sub BuildMessage(ByVal r As Long, ByRef toList As String, ByRef ccList As
     Set wsR = ThisWorkbook.Worksheets(SH_REM)
 
     toList = Trim$(CStr(wsR.Cells(r, C_TO).Value))
-    ccList = Trim$(CStr(wsR.Cells(r, C_CC).Value))
+    ' Applied again here so a change to the always-Cc box takes effect even if
+    ' the list has not been refreshed since. MergeCc will not duplicate.
+    ccList = MergeCc(Trim$(CStr(wsR.Cells(r, C_CC).Value)), AlwaysCcList(), toList)
 
     subj = "Proctoring reminder - " & wsR.Cells(r, C_COURSE).Value & _
            ", " & wsR.Cells(r, C_DAY).Value & " " & _
@@ -422,6 +430,45 @@ Private Sub ApplySender(ByVal mail As Object, ByVal ol As Object)
     mail.SentOnBehalfOfName = want
     On Error GoTo 0
 End Sub
+
+
+Private Function AlwaysCcList() As String
+    AlwaysCcList = Trim$(CStr(ThisWorkbook.Worksheets(SH_REM).Range(CELL_ALWAYSCC).Value))
+End Function
+
+
+' Fold the always-Cc addresses into a row's Cc, skipping any that are already
+' there and any that are already in the To line. Running this twice on the
+' same value changes nothing, so it is safe to apply on refresh and again at
+' send time.
+Private Function MergeCc(ByVal baseCc As String, ByVal extra As String, _
+                         ByVal excludeTo As String) As String
+    Dim parts() As String, i As Long, one As String
+    Dim out As String, hay As String, toHay As String
+
+    out = Trim$(baseCc)
+    If Len(Trim$(extra)) = 0 Then
+        MergeCc = out
+        Exit Function
+    End If
+
+    toHay = ";" & Replace(Trim$(excludeTo), "; ", ";") & ";"
+
+    parts = Split(Replace(Replace(Replace(extra, ",", ";"), vbLf, ";"), vbCr, ";"), ";")
+    For i = LBound(parts) To UBound(parts)
+        one = Trim$(parts(i))
+        If Len(one) > 0 Then
+            hay = ";" & Replace(out, "; ", ";") & ";"
+            If InStr(1, hay, ";" & one & ";", vbTextCompare) = 0 _
+               And InStr(1, toHay, ";" & one & ";", vbTextCompare) = 0 Then
+                If Len(out) > 0 Then out = out & "; "
+                out = out & one
+            End If
+        End If
+    Next i
+
+    MergeCc = out
+End Function
 
 
 Private Function SenderLabel() As String

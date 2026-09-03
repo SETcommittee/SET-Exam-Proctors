@@ -24,6 +24,9 @@ BAS_SHEET = os.path.join(HERE, "vba_sheet.bas")
 
 XL_STD_MODULE = 1
 
+# The committee mailbox, which is what reminders should go out as.
+SEND_FROM_DEFAULT = "set.exam.committee@htu.edu.jo"
+
 ALL_BUTTONS = [
     ("Refresh list", "RefreshReminders"),
     ("Send for selected row", "SendSelectedReminder"),
@@ -93,15 +96,27 @@ def main():
             "Send cell. If anything seems stuck, press Unfreeze Excel."
         )
 
-        # "Send from" control
-        ws.Range("A3").Value = "SEND FROM"
-        ws.Range("A3").Font.Bold = True
-        ws.Range("A3").Font.Color = 0x8A7266
+        # Settings row: which account sends, and who is always copied.
+        for cell, label in (("A3", "SEND FROM"), ("D3", "ALWAYS CC")):
+            ws.Range(cell).Value = label
+            ws.Range(cell).Font.Bold = True
+            ws.Range(cell).Font.Color = 0x8A7266
+            ws.Range(cell).HorizontalAlignment = -4152  # xlRight
+
+        for rng in ("B3:C3", "E3:F3"):
+            try:
+                ws.Range(rng).UnMerge()
+            except Exception:
+                pass
+            ws.Range(rng).Merge()
+            ws.Range(rng).Interior.Color = 0xF2FAF2
+            ws.Range(rng).Borders.LineStyle = 1
+            ws.Range(rng).HorizontalAlignment = -4131  # xlLeft
+
         if not str(ws.Range("B3").Value or "").strip():
-            ws.Range("B3").Value = "(default account)"
-        ws.Range("B3").Interior.Color = 0xF2FAF2
-        ws.Range("B3").Borders.LineStyle = 1
-        ws.Rows(3).RowHeight = 18
+            ws.Range("B3").Value = SEND_FROM_DEFAULT
+        ws.Range("E3").Value = str(ws.Range("E3").Value or "")
+        ws.Rows(3).RowHeight = 19
 
         wb.Save()
         wb.Close(SaveChanges=False)
