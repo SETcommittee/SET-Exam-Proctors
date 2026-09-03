@@ -141,7 +141,7 @@ spelling (e.g. `Rajaie Nassar` / `Rajaie Ghassan Fawzi Nassar` /
 
 **`Reminders`** — one row per exam, with recipients resolved from the `Emails`
 sheet. Click any row and the box at the top shows exactly what would be sent.
-Then either double-click that row's **Send** cell, or use the buttons:
+The coordinator is put in Cc, not addressed in the body. Then either double-click that row's **Send** cell, or use the buttons:
 
 | Button | What it does |
 |---|---|

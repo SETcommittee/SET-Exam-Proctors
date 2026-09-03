@@ -29,11 +29,12 @@ Private Const C_COURSE As Long = 4
 Private Const C_ROOM As Long = 5
 Private Const C_COORD As Long = 6
 Private Const C_PROCS As Long = 7
-Private Const C_TO As Long = 8
-Private Const C_MISSING As Long = 9
-Private Const C_STATUS As Long = 10
-Private Const C_SEND As Long = 11
-Private Const C_SENTLOG As Long = 12
+Private Const C_TO As Long = 8          ' proctors
+Private Const C_CC As Long = 9          ' coordinator
+Private Const C_MISSING As Long = 10
+Private Const C_STATUS As Long = 11
+Public Const C_SEND As Long = 12
+Private Const C_SENTLOG As Long = 13
 
 
 ' ---------------------------------------------------------------------------
@@ -75,7 +76,8 @@ Public Function RefreshRemindersCore() As Long
     Dim wsE As Worksheet, wsR As Worksheet
     Dim rE As Long, rR As Long, lastE As Long, c As Long
     Dim course As String, coord As String, procs As String
-    Dim toList As String, missing As String, addr As String, nm As String
+    Dim toList As String, ccList As String, missing As String
+    Dim addr As String, nm As String
     Dim dt As Variant, startT As String, endT As String
 
     Set wsE = ThisWorkbook.Worksheets(SH_EXAM)
@@ -107,6 +109,7 @@ Public Function RefreshRemindersCore() As Long
             ' gather assigned proctors from K..T
             procs = ""
             toList = ""
+            ccList = ""
             missing = ""
             For c = 11 To 20
                 nm = Trim$(CStr(wsE.Cells(rE, c).Value))
@@ -126,13 +129,14 @@ Public Function RefreshRemindersCore() As Long
                 End If
             Next c
 
-            ' the coordinator gets a copy too
+            ' The coordinator is copied in, not addressed directly, and is not
+            ' named in the body - the message is written to the proctors.
             If Len(coord) > 0 Then
                 addr = EmailFor(coord)
                 If Len(addr) > 0 Then
+                    ' don't Cc someone who is already a proctor on this exam
                     If InStr(1, ";" & toList, ";" & addr, vbTextCompare) = 0 Then
-                        If Len(toList) > 0 Then toList = toList & "; "
-                        toList = toList & addr
+                        ccList = addr
                     End If
                 Else
                     If Len(missing) > 0 Then missing = missing & ", "
@@ -150,6 +154,7 @@ Public Function RefreshRemindersCore() As Long
             wsR.Cells(rR, C_COORD).Value = coord
             wsR.Cells(rR, C_PROCS).Value = procs
             wsR.Cells(rR, C_TO).Value = toList
+            wsR.Cells(rR, C_CC).Value = ccList
             wsR.Cells(rR, C_MISSING).Value = missing
             wsR.Cells(rR, C_STATUS).Value = StatusFor(dt)
             wsR.Cells(rR, C_SEND).Value = "Send"
@@ -182,14 +187,28 @@ Public Function RefreshRemindersCore() As Long
 End Function
 
 
+' The Exam sheet holds times two different ways: some cells are text ("09:30")
+' and some are real Excel times, which arrive here as a fraction of a day
+' (0.4166... = 10:00). Handle both, or the numeric ones print as decimals.
 Private Function FormatTime(ByVal v As Variant) As String
-    If IsEmpty(v) Or IsNull(v) Then
-        FormatTime = ""
-    ElseIf IsDate(v) Then
-        FormatTime = Format$(v, "hh:mm")
-    Else
-        FormatTime = Trim$(CStr(v))
-    End If
+    Dim s As String
+    FormatTime = ""
+    If IsEmpty(v) Or IsNull(v) Then Exit Function
+
+    Select Case VarType(v)
+        Case vbDouble, vbSingle, vbDecimal, vbCurrency, vbInteger, vbLong
+            FormatTime = Format$(CDate(CDbl(v)), "hh:mm")
+        Case vbDate
+            FormatTime = Format$(v, "hh:mm")
+        Case Else
+            s = Trim$(CStr(v))
+            If Len(s) = 0 Then Exit Function
+            If IsDate(s) Then
+                FormatTime = Format$(CDate(s), "hh:mm")
+            Else
+                FormatTime = s
+            End If
+    End Select
 End Function
 
 
@@ -209,12 +228,13 @@ End Function
 ' ---------------------------------------------------------------------------
 '  Build the message for one row
 ' ---------------------------------------------------------------------------
-Public Sub BuildMessage(ByVal r As Long, ByRef toList As String, _
+Public Sub BuildMessage(ByVal r As Long, ByRef toList As String, ByRef ccList As String, _
                         ByRef subj As String, ByRef body As String)
     Dim wsR As Worksheet, parts() As String, i As Long
     Set wsR = ThisWorkbook.Worksheets(SH_REM)
 
     toList = Trim$(CStr(wsR.Cells(r, C_TO).Value))
+    ccList = Trim$(CStr(wsR.Cells(r, C_CC).Value))
 
     subj = "Proctoring reminder - " & wsR.Cells(r, C_COURSE).Value & _
            ", " & wsR.Cells(r, C_DAY).Value & " " & _
@@ -227,8 +247,7 @@ Public Sub BuildMessage(ByVal r As Long, ByRef toList As String, _
            "Date:         " & wsR.Cells(r, C_DAY).Value & ", " & _
                               Format$(wsR.Cells(r, C_DATE).Value, "d mmmm yyyy") & vbCrLf & _
            "Time:         " & wsR.Cells(r, C_TIME).Value & vbCrLf & _
-           "Room:         " & wsR.Cells(r, C_ROOM).Value & vbCrLf & _
-           "Coordinator:  " & wsR.Cells(r, C_COORD).Value & vbCrLf & vbCrLf & _
+           "Room:         " & wsR.Cells(r, C_ROOM).Value & vbCrLf & vbCrLf & _
            "Proctors:" & vbCrLf
 
     parts = Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")
@@ -253,7 +272,7 @@ End Sub
 ' ---------------------------------------------------------------------------
 Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As Boolean
     Dim wsR As Worksheet
-    Dim toList As String, subj As String, body As String, missing As String
+    Dim toList As String, ccList As String, subj As String, body As String, missing As String
     Dim ol As Object, mail As Object
     Dim answer As VbMsgBoxResult
 
@@ -262,7 +281,7 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
 
     If Len(Trim$(CStr(wsR.Cells(r, C_COURSE).Value))) = 0 Then Exit Function
 
-    BuildMessage r, toList, subj, body
+    BuildMessage r, toList, ccList, subj, body
     missing = Trim$(CStr(wsR.Cells(r, C_MISSING).Value))
 
     If Len(toList) = 0 Then
@@ -278,6 +297,7 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
                         Format$(wsR.Cells(r, C_DATE).Value, "d mmm yyyy") & "  " & _
                         wsR.Cells(r, C_TIME).Value & vbCrLf & vbCrLf & _
                         "To:" & vbCrLf & Replace(toList, "; ", vbCrLf) & vbCrLf & _
+                        IIf(Len(ccList) > 0, vbCrLf & "Cc:" & vbCrLf & ccList & vbCrLf, "") & _
                         IIf(Len(missing) > 0, vbCrLf & "NO ADDRESS FOR: " & missing & vbCrLf, ""), _
                         vbYesNo + vbQuestion, "Confirm reminder")
         If answer <> vbYes Then Exit Function
@@ -288,6 +308,7 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
     Set mail = ol.CreateItem(0)
     With mail
         .To = toList
+        If Len(ccList) > 0 Then .CC = ccList
         .Subject = subj
         .body = body
         If UCase$(SEND_MODE) = "DISPLAY" Then
@@ -339,7 +360,7 @@ End Sub
 
 
 Public Sub PreviewSelectedReminder()
-    Dim r As Long, toList As String, subj As String, body As String
+    Dim r As Long, toList As String, ccList As String, subj As String, body As String
     Dim ol As Object, mail As Object
 
     r = ActiveCell.Row
@@ -349,7 +370,7 @@ Public Sub PreviewSelectedReminder()
         Exit Sub
     End If
 
-    BuildMessage r, toList, subj, body
+    BuildMessage r, toList, ccList, subj, body
     If Len(toList) = 0 Then
         MsgBox "No addresses yet for this exam.", vbExclamation, "Nothing to preview"
         Exit Sub
@@ -360,6 +381,7 @@ Public Sub PreviewSelectedReminder()
     Set mail = ol.CreateItem(0)
     With mail
         .To = toList
+        If Len(ccList) > 0 Then .CC = ccList
         .Subject = subj
         .body = body
         .Display                      ' always opens, never sends

@@ -196,24 +196,30 @@ def build_reminders_sheet(wb):
     ws.Range("A2").Font.Color = 0x8A7266
 
     ws.Range("A4").Value = "TO"
-    ws.Range("A5").Value = "SUBJECT"
-    ws.Range("A6").Value = "BODY"
-    for row in (4, 5, 6):
+    ws.Range("A5").Value = "CC"
+    ws.Range("A6").Value = "SUBJECT"
+    ws.Range("A7").Value = "BODY"
+    for row in (4, 5, 6, 7):
         ws.Cells(row, 1).Font.Bold = True
         ws.Cells(row, 1).VerticalAlignment = -4160  # xlTop
         ws.Cells(row, 1).Font.Color = 0x8A7266
 
-    for rng in ("B4:K4", "B5:K5", "B6:K6"):
+    # The preview stops at column F so the buttons can sit to its right
+    # without covering the body text.
+    for rng in ("B4:F4", "B5:F5", "B6:F6", "B7:F7"):
         ws.Range(rng).Merge()
         ws.Range(rng).Interior.Color = 0xFAF8F5
         ws.Range(rng).VerticalAlignment = -4160
         ws.Range(rng).WrapText = True
-    ws.Range("B6").RowHeight = 150
-    ws.Rows(4).RowHeight = 30
-    ws.Rows(5).RowHeight = 18
+    ws.Rows(4).RowHeight = 28
+    ws.Rows(5).RowHeight = 16
+    ws.Rows(6).RowHeight = 30
+    ws.Rows(7).RowHeight = 190
+    ws.Rows(8).RowHeight = 8
 
-    headers = ["Date", "Day", "Time", "Course", "Room", "Coordinator",
-               "Proctors", "Recipients", "No address for", "When", "Send", "Last sent"]
+    headers = ["Date", "Day", "Time", "Course", "Room", "Coordinator", "Proctors",
+               "To (proctors)", "Cc (coordinator)", "No address for", "When",
+               "Send", "Last sent"]
     for i, head in enumerate(headers, start=1):
         cell = ws.Cells(9, i)
         cell.Value = head
@@ -221,14 +227,22 @@ def build_reminders_sheet(wb):
         cell.Interior.Color = 0xF6F1E1
         cell.Borders(9).LineStyle = 1
 
-    widths = [12, 10, 14, 40, 26, 30, 44, 40, 26, 11, 9, 16]
+    widths = [12, 10, 14, 40, 26, 30, 44, 34, 26, 28, 11, 9, 16]
     for i, w in enumerate(widths, start=1):
         ws.Columns(i).ColumnWidth = w
 
-    add_button(ws, 210, 118, 118, 24, "Refresh list", "RefreshReminders")
-    add_button(ws, 336, 118, 168, 24, "Send for selected row", "SendSelectedReminder")
-    add_button(ws, 512, 118, 150, 24, "Preview in Outlook", "PreviewSelectedReminder")
-    add_button(ws, 670, 118, 150, 24, "Send all upcoming", "SendAllUpcoming")
+    # Anchor the buttons to real cell positions rather than guessed pixels, so
+    # they always land clear of the preview box whatever the column widths are.
+    x = ws.Range("G4").Left + 8
+    y = ws.Range("G4").Top
+    for caption, macro in [
+        ("Refresh list", "RefreshReminders"),
+        ("Send for selected row", "SendSelectedReminder"),
+        ("Preview in Outlook", "PreviewSelectedReminder"),
+        ("Send all upcoming", "SendAllUpcoming"),
+    ]:
+        add_button(ws, x, y, 170, 26, caption, macro)
+        y += 32
 
     excel_freeze(wb, "A10")
 
