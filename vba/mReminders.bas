@@ -413,11 +413,11 @@ Public Function DefaultBody() As String
         "This is a reminder of the exam below and your proctoring duty for it." & vbCrLf & vbCrLf & _
         "Course:       {course}" & vbCrLf & _
         "Date:         {day}, {longdate}" & vbCrLf & _
-        "Time:         {time}" & vbCrLf & _
-        "Room:         {room}" & vbCrLf & vbCrLf & _
-        "Proctors:" & vbCrLf & _
-        "{proctors}" & vbCrLf & _
-        "Please arrive 15 minutes before the start time." & vbCrLf & vbCrLf & _
+        "Time:         {time}" & vbCrLf & vbCrLf & _
+        "Proctors and rooms:" & vbCrLf & _
+        "{proctorrooms}" & vbCrLf & _
+        "Please go to the room shown next to your name, and arrive 15 minutes" & vbCrLf & _
+        "before the start time." & vbCrLf & vbCrLf & _
         "If you cannot attend, reply to this message as early as you can so a" & vbCrLf & _
         "replacement can be arranged." & vbCrLf & vbCrLf & _
         "Thank you," & vbCrLf & _
@@ -442,6 +442,49 @@ Private Function Template(ByVal whichCell As String, ByVal fallback As String) A
     v = CStr(ws.Range(whichCell).Value)
     If Len(Trim$(v)) = 0 Then v = fallback
     Template = v
+End Function
+
+
+' Split an exam's room text into its individual rooms.
+Private Function RoomsOf(ByVal roomTxt As String, ByRef n As Long) As Variant
+    Dim rooms() As String, i As Long, keep() As String, k As Long
+
+    n = 0
+    roomTxt = Trim$(roomTxt)
+    If Len(roomTxt) = 0 Or UCase$(roomTxt) = "TBC" Then Exit Function
+
+    rooms = Split(Replace(roomTxt, "/", ","), ",")
+    ReDim keep(0 To UBound(rooms) - LBound(rooms))
+    k = 0
+    For i = LBound(rooms) To UBound(rooms)
+        If Len(Trim$(rooms(i))) > 0 Then
+            keep(k) = Trim$(rooms(i))
+            k = k + 1
+        End If
+    Next i
+    n = k
+    RoomsOf = keep
+End Function
+
+
+' Each proctor with the room they are covering, using the same positional
+' rule as the Room Plan sheet: first proctor takes the first room listed.
+Private Function ProctorRoomBlock(ByVal r As Long) As String
+    Dim wsR As Worksheet, procs() As String, rooms As Variant
+    Dim i As Long, nRoom As Long, out As String, rm As String
+
+    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+    procs = Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")
+    rooms = RoomsOf(CStr(wsR.Cells(r, C_ROOM).Value), nRoom)
+
+    For i = LBound(procs) To UBound(procs)
+        If Len(Trim$(procs(i))) > 0 Then
+            If i < nRoom Then rm = rooms(i) Else rm = "room to be confirmed"
+            out = out & "  " & (i + 1) & ". " & Trim$(procs(i)) & _
+                  "  -  " & rm & vbCrLf
+        End If
+    Next i
+    ProctorRoomBlock = out
 End Function
 
 
@@ -476,7 +519,9 @@ Private Function FillTemplate(ByVal tpl As String, ByVal r As Long) As String
     s = Replace(s, "{room}", CStr(wsR.Cells(r, C_ROOM).Value))
     s = Replace(s, "{coordinator}", CStr(wsR.Cells(r, C_COORD).Value))
     s = Replace(s, "{proctorlist}", CStr(wsR.Cells(r, C_PROCS).Value))
+    s = Replace(s, "{proctorrooms}", ProctorRoomBlock(r))
     s = Replace(s, "{proctors}", ProctorBlock(r))
+    s = Replace(s, "{rooms}", CStr(wsR.Cells(r, C_ROOM).Value))
     s = Replace(s, "{count}", CStr(UBound(Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")) + 1))
 
     FillTemplate = s

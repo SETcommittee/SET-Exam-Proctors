@@ -8,6 +8,7 @@ instead.
 """
 
 import os
+import re
 import sys
 
 import win32com.client as win32
@@ -45,9 +46,11 @@ PLACEHOLDERS = [
     ("{longdate}", "7 September 2026"),
     ("{time}", "11:00 - 13:30"),
     ("{room}", "N-301, N-303, N-304, N-306"),
+    ("{rooms}", "the same room list"),
     ("{coordinator}", "Rami Hammad"),
-    ("{proctors}", "a numbered list, one proctor per line"),
-    ("{proctorlist}", "the same names on one line, comma separated"),
+    ("{proctorrooms}", "each proctor with their own room, one per line"),
+    ("{proctors}", "the same names, without rooms"),
+    ("{proctorlist}", "the names on one line, comma separated"),
     ("{count}", "how many proctors"),
 ]
 
@@ -114,6 +117,21 @@ def build_message_sheet(wb, excel):
         ws.Range("B4").Value = excel.Run("DefaultSubject")
     if fresh or not str(ws.Range("B6").Value or "").strip():
         ws.Range("B6").Value = excel.Run("DefaultBody")
+    else:
+        # Upgrade a body still using the names-only list, without discarding
+        # any other wording that has been changed by hand.
+        body = str(ws.Range("B6").Value)
+        if "{proctors}" in body and "{proctorrooms}" not in body:
+            body = body.replace("{proctors}", "{proctorrooms}")
+            body = body.replace("Proctors:", "Proctors and rooms:")
+            body = re.sub(r"[ \t]*Room:\s*\{room\}\r?\n?", "", body)
+            body = body.replace(
+                "Please arrive 15 minutes before the start time.",
+                "Please go to the room shown next to your name, and arrive 15 "
+                "minutes\nbefore the start time.",
+            )
+            ws.Range("B6").Value = body
+            print("  body upgraded to show each proctor's room")
 
     for b in list(ws.Buttons()):
         b.Delete()
