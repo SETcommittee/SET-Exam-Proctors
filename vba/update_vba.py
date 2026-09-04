@@ -125,6 +125,51 @@ def build_message_sheet(wb, excel):
     print("Message sheet %s" % ("created" if fresh else "refreshed (wording kept)"))
 
 
+def build_room_sheet(wb):
+    """One row per proctor showing the room they cover."""
+    existing = None
+    for sh in wb.Worksheets:
+        if sh.Name == "Room Plan":
+            existing = sh
+            break
+
+    fresh = existing is None
+    ws = existing or wb.Worksheets.Add(After=wb.Worksheets(wb.Worksheets.Count))
+    if fresh:
+        ws.Name = "Room Plan"
+
+    ws.Range("A1").Value = "Room plan"
+    ws.Range("A1").Font.Size = 15
+    ws.Range("A1").Font.Bold = True
+    ws.Range("A2").Value = (
+        "One row per proctor, with the room they are covering. Built from the Exam "
+        "sheet: the first proctor takes the first room listed, the second the second, "
+        "and so on. Press Refresh after changing the Exam sheet."
+    )
+    ws.Range("A2").Font.Color = 0x8A7266
+
+    headers = ["Date", "Day", "Time", "Course", "Proctor", "Room",
+               "Students", "Coordinator", "Check"]
+    for i, head in enumerate(headers, start=1):
+        cell = ws.Cells(5, i)
+        cell.Value = head
+        cell.Font.Bold = True
+        cell.Interior.Color = 0xF6F1E1
+        cell.Borders(9).LineStyle = 1
+
+    for i, w in enumerate([12, 10, 14, 44, 26, 14, 9, 30, 30], start=1):
+        ws.Columns(i).ColumnWidth = w
+
+    for b in list(ws.Buttons()):
+        b.Delete()
+    btn = ws.Buttons().Add(ws.Range("A3").Left, ws.Range("A3").Top + 2, 150, 22)
+    btn.Caption = "Refresh room plan"
+    btn.OnAction = "RefreshRoomPlan"
+    btn.Font.Size = 10
+
+    print("Room Plan sheet %s" % ("created" if fresh else "refreshed"))
+
+
 def main():
     if not os.path.exists(XLSM):
         sys.exit("Not found: %s" % XLSM)
@@ -206,6 +251,7 @@ def main():
         ws.Rows(3).RowHeight = 19
 
         build_message_sheet(wb, excel)
+        build_room_sheet(wb)
 
         wb.Save()
         wb.Close(SaveChanges=False)

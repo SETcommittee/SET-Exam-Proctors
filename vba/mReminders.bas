@@ -27,6 +27,12 @@ Private Const CELL_BODY As String = "B6"
 Private Const FIRST_DATA_ROW As Long = 10   ' first exam row on Reminders
 Private Const EXAM_FIRST_ROW As Long = 6    ' first exam row on Exam sheet
 
+' Room plan sheet. Every module-level declaration has to live up here in the
+' declarations block - VBA ignores a Const written further down between
+' procedures, and the name then reads as undefined wherever it is used.
+Private Const SH_ROOMS As String = "Room Plan"
+Private Const ROOMS_FIRST_ROW As Long = 6
+
 ' Cell holding the address to send from. Blank or "(default)" uses whichever
 ' account Outlook would normally use.
 Private Const CELL_SENDFROM As String = "B3"
@@ -246,6 +252,145 @@ Private Function StatusFor(ByVal dt As Variant) As String
         StatusFor = "Today"
     Else
         StatusFor = Int(CDate(dt)) - Int(Now()) & " day(s)"
+    End If
+End Function
+
+
+' ---------------------------------------------------------------------------
+'  Room plan: one row per proctor, with the room they are covering
+' ---------------------------------------------------------------------------
+'
+' The Exam sheet keeps rooms as one list per exam ("N-301, N-303, N-304") and
+' proctors in separate columns. The committee's convention is positional - the
+' first proctor takes the first room, the second the second, and so on - which
+' is how the printed room list is laid out. This expands that into one row per
+' person, and says so plainly when the two lists do not line up.
+
+Public Sub RefreshRoomPlan()
+    Dim n As Long
+    n = RefreshRoomPlanCore()
+    MsgBox "Room plan rebuilt." & vbCrLf & vbCrLf & _
+           n & " proctor/room row(s).", vbInformation + vbSystemModal, "Room plan"
+End Sub
+
+
+Public Function RefreshRoomPlanCore() As Long
+    Dim wsE As Worksheet, wsP As Worksheet
+    Dim rE As Long, rP As Long, lastE As Long, c As Long, i As Long
+    Dim course As String, nm As String, note As String
+    Dim procs() As String, rooms() As String
+    Dim nProc As Long, nRoom As Long, slots As Long
+    Dim dt As Variant, roomTxt As String
+
+    Set wsE = ThisWorkbook.Worksheets(SH_EXAM)
+    Set wsP = ThisWorkbook.Worksheets(SH_ROOMS)
+
+    On Error GoTo Restore
+    Application.ScreenUpdating = False
+    Application.EnableEvents = False
+
+    ' Clear only the rows actually used. Resetting the font colour across the
+    ' whole sheet is enough work to make Excel refuse the call outright.
+    Dim lastP As Long
+    lastP = wsP.Cells(wsP.Rows.Count, 4).End(xlUp).Row
+    If lastP >= ROOMS_FIRST_ROW Then
+        With wsP.Range(wsP.Cells(ROOMS_FIRST_ROW, 1), wsP.Cells(lastP, 9))
+            .ClearContents
+            .Interior.Pattern = xlNone
+            .Font.Color = RGB(0, 0, 0)
+        End With
+    End If
+
+    lastE = wsE.Cells(wsE.Rows.Count, 1).End(xlUp).Row
+    rP = ROOMS_FIRST_ROW
+
+    For rE = EXAM_FIRST_ROW To lastE
+        course = Trim$(CStr(wsE.Cells(rE, 1).Value))
+        If Len(course) > 0 And UCase$(course) <> "TOTAL" Then
+            dt = wsE.Cells(rE, 4).Value
+
+            ReDim procs(0 To 9)
+            nProc = 0
+            For c = 11 To 20
+                nm = Trim$(CStr(wsE.Cells(rE, c).Value))
+                If Len(nm) > 0 Then
+                    procs(nProc) = nm
+                    nProc = nProc + 1
+                End If
+            Next c
+
+            roomTxt = Trim$(CStr(wsE.Cells(rE, 8).Value))
+            nRoom = 0
+            If Len(roomTxt) > 0 Then
+                rooms = Split(Replace(roomTxt, "/", ","), ",")
+                For i = LBound(rooms) To UBound(rooms)
+                    rooms(i) = Trim$(rooms(i))
+                    If Len(rooms(i)) > 0 Then nRoom = nRoom + 1
+                Next i
+            End If
+
+            ' A row for every proctor, plus a row for any room nobody is in.
+            slots = nProc
+            If nRoom > slots Then slots = nRoom
+            If slots = 0 Then slots = 1
+
+            For i = 0 To slots - 1
+                note = ""
+                wsP.Cells(rP, 1).Value = dt
+                wsP.Cells(rP, 1).NumberFormat = "dd mmm yyyy"
+                wsP.Cells(rP, 2).Value = wsE.Cells(rE, 5).Value
+                wsP.Cells(rP, 3).Value = FormatTime(wsE.Cells(rE, 6).Value) & _
+                    IIf(Len(FormatTime(wsE.Cells(rE, 7).Value)) > 0, _
+                        " - " & FormatTime(wsE.Cells(rE, 7).Value), "")
+                wsP.Cells(rP, 4).Value = course
+
+                If i < nProc Then
+                    wsP.Cells(rP, 5).Value = procs(i)
+                Else
+                    wsP.Cells(rP, 5).Value = "(nobody assigned)"
+                    note = "Room has no proctor"
+                End If
+
+                If i < nRoom Then
+                    wsP.Cells(rP, 6).Value = rooms(i)
+                ElseIf nRoom = 0 Then
+                    wsP.Cells(rP, 6).Value = "TBC"
+                    note = "No room set on the Exam sheet"
+                Else
+                    wsP.Cells(rP, 6).Value = "TBC"
+                    note = "More proctors than rooms"
+                End If
+
+                wsP.Cells(rP, 7).Value = wsE.Cells(rE, 9).Value
+                wsP.Cells(rP, 8).Value = wsE.Cells(rE, 2).Value
+                wsP.Cells(rP, 9).Value = note
+
+                If Len(note) > 0 Then
+                    wsP.Cells(rP, 9).Interior.Color = RGB(250, 229, 227)
+                    wsP.Cells(rP, 9).Font.Color = RGB(166, 42, 34)
+                    wsP.Cells(rP, 6).Font.Color = RGB(166, 42, 34)
+                End If
+
+                If IsDate(dt) Then
+                    If Int(CDate(dt)) < Int(Now()) Then
+                        wsP.Range(wsP.Cells(rP, 1), wsP.Cells(rP, 8)).Font.Color = _
+                            RGB(150, 158, 170)
+                    End If
+                End If
+
+                rP = rP + 1
+            Next i
+        End If
+    Next rE
+
+    RefreshRoomPlanCore = rP - ROOMS_FIRST_ROW
+
+Restore:
+    Application.EnableEvents = True
+    Application.ScreenUpdating = True
+    If Err.Number <> 0 Then
+        MsgBox "Could not rebuild the room plan." & vbCrLf & vbCrLf & Err.Description, _
+               vbCritical + vbSystemModal, "Room plan"
     End If
 End Function
 
