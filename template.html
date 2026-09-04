@@ -342,12 +342,6 @@
   .sitting .head { font-size: 14.5px; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 6px; }
   .sitting .head span { font-weight: 500; color: var(--ink-3); }
 
-  .note {
-    margin-top: 30px; padding: 14px 16px;
-    background: var(--pen-soft); border-left: 3px solid var(--pen);
-    font-size: 14.5px; color: var(--ink-2);
-  }
-  .note b { color: var(--pen); }
 
   .nothing {
     margin-top: 34px; padding: 38px 20px; text-align: center;
@@ -605,16 +599,6 @@
     return out.join("");
   }
 
-  function shortNote() {
-    var short = DATA.exams.filter(function (e) { return e.shortfall && !past(e); });
-    if (!short.length) return "";
-    return '<div class="note"><b>Still needs a proctor.</b> ' +
-      short.map(function (e) {
-        var d = asDate(e.date);
-        return esc(e.course) + " on " + (d ? d.getDate() + " " + MON[d.getMonth()] : "?");
-      }).join("; ") + ". Tell the exam committee if you can cover it.</div>";
-  }
-
   /* ---------- views ---------- */
   // Every date that has an exam, for the strip along the top.
   var DATES = (function () {
@@ -698,7 +682,7 @@
     out.push(rows.length ? rosterHtml(rows)
       : '<div class="nothing"><b>Nothing matches</b>Try a different search, or clear the filters.</div>');
 
-    return out.join("") + shortNote();
+    return out.join("");
   }
 
   function prettyDay(iso) {
