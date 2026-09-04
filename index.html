@@ -170,6 +170,86 @@
   .tool:hover { color: var(--ink); border-color: var(--ink-3); }
   .tool:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
+  /* ---------- search + filters on the full schedule ---------- */
+  .searchbar {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 26px;
+    background: var(--paper-2);
+    border: 1.5px solid var(--rule);
+    border-radius: 3px;
+    padding: 0 16px;
+  }
+  .searchbar:focus-within { border-color: var(--ink); background: var(--paper); }
+  .searchbar svg { flex: none; color: var(--ink-3); }
+  .searchbar input {
+    flex: 1; min-width: 0; font: inherit; font-size: 16px;
+    color: var(--ink); background: none; border: 0; outline: none; padding: 13px 0;
+  }
+  .searchbar input::placeholder { color: var(--ink-3); }
+  .searchbar .clear {
+    appearance: none; background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink-3);
+    padding: 6px 0 6px 10px;
+  }
+  .searchbar .clear:hover { color: var(--pen); }
+
+  /* the day strip: each tile carries one dot per exam that day */
+  .strip {
+    display: flex; gap: 8px; overflow-x: auto;
+    margin-top: 18px; padding: 2px 1px 10px;
+    scrollbar-width: thin;
+  }
+  .dtile {
+    flex: 0 0 auto; width: 64px;
+    appearance: none; cursor: pointer; font: inherit;
+    background: var(--paper); color: var(--ink);
+    border: 1.5px solid var(--rule); border-radius: 3px;
+    padding: 8px 4px 7px; text-align: center;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .dtile:hover { border-color: var(--ink-3); }
+  .dtile:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .dtile .wd { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .dtile .dn {
+    display: block; font-family: var(--serif); font-weight: 700;
+    font-size: 25px; line-height: 1.08; letter-spacing: -.03em;
+  }
+  .dtile .mo { display: block; font-size: 11px; color: var(--ink-3); }
+  .dtile .dots {
+    display: flex; gap: 3px; justify-content: center; margin-top: 6px; min-height: 6px;
+  }
+  .dtile .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); }
+  .dtile .dots i.short { background: var(--pen); }
+  .dtile.today { border-color: var(--mark-deep); }
+  .dtile.gone { opacity: .45; }
+  .dtile[aria-pressed="true"] {
+    background: var(--mark); border-color: var(--ink);
+  }
+  .dtile[aria-pressed="true"] .wd,
+  .dtile[aria-pressed="true"] .mo { color: var(--ink); }
+  .dtile[aria-pressed="true"] .dots i { background: var(--ink); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+  .filters .sep { width: 1px; height: 18px; background: var(--rule); margin: 0 4px; }
+  .filters button {
+    appearance: none; cursor: pointer; font: inherit;
+    font-size: 13.5px; font-weight: 600;
+    background: none; color: var(--ink-3);
+    border: 1.5px solid var(--rule); border-radius: 2px;
+    padding: 6px 12px;
+    transition: color .12s ease, border-color .12s ease;
+  }
+  .filters button:hover { color: var(--ink); border-color: var(--ink-3); }
+  .filters button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .filters button[aria-pressed="true"] {
+    color: var(--ink); border-color: var(--ink); background: var(--mark-soft);
+  }
+
+  .count {
+    margin: 22px 0 0; font-size: 14px; font-weight: 600; color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
   /* ---------- the schedule ---------- */
   .day { margin-top: 40px; }
   .day-mark {
@@ -335,14 +415,17 @@
 (function () {
   "use strict";
 
-  var DATA = {"generatedAt": "2026-09-04T18:25:57+03:00", "sourceFile": "Proctor Schedule by Date.xlsm", "sourceModified": "2026-09-04T15:08:58+03:00", "windowStart": "2026-09-03", "summary": {"exams": 19, "totalStudents": 438, "seatsRequired": 39, "seatsAssigned": 38, "examsShort": 1, "seatsShort": 1, "examsWithoutTarget": 0, "proctors": 21, "rosterSize": 26}, "exams": [{"id": "2026-09-03-aptitude-test-10:00", "sourceRow": 26, "course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-03", "day": "Thursday", "start": "10:00", "end": "11:00", "time": "10:00 - 11:00", "room": "TBC", "rooms": [], "assignments": [{"name": "Dana Slehat", "room": ""}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Dana Slehat"], "notes": ""}, {"id": "2026-09-03-aptitude-test-11:00", "sourceRow": 27, "course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-03", "day": "Thursday", "start": "11:00", "end": "12:00", "time": "11:00 - 12:00", "room": "TBC", "rooms": [], "assignments": [{"name": "Abedalaziz Milhem", "room": ""}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Abedalaziz Milhem"], "notes": ""}, {"id": "2026-09-03-aptitude-test-12:00", "sourceRow": 28, "course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-03", "day": "Thursday", "start": "12:00", "end": "13:00", "time": "12:00 - 13:00", "room": "TBC", "rooms": [], "assignments": [{"name": "Dima Bader", "room": ""}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Dima Bader"], "notes": ""}, {"id": "2026-09-05-further-electrical-electronic-and-digital-principles-10:00", "sourceRow": 30, "course": "Further Electrical, Electronic and Digital Principles", "coordinator": "Razan Fayez Mahmoud Shatnawi", "dept": "EE", "date": "2026-09-05", "day": "Saturday", "start": "10:00", "end": "16:00", "time": "10:00 - 16:00", "room": "N-303, N-306", "rooms": ["N-303", "N-306"], "assignments": [{"name": "Mohammad Raed", "room": "N-303"}, {"name": "Mohammad Raed", "room": "N-306"}], "spareRooms": [], "students": 30, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Mohammad Raed", "Mohammad Raed"], "notes": "N303, N306 already reserved"}, {"id": "2026-09-05-introduction-to-engineering-drawing-11:00", "sourceRow": 29, "course": "Introduction to Engineering Drawing", "coordinator": "Ala' Abdel Rahman Sanad Bani Issa", "dept": "ME", "date": "2026-09-05", "day": "Saturday", "start": "11:00", "end": "14:00", "time": "11:00 - 14:00", "room": "N-106", "rooms": ["N-106"], "assignments": [{"name": "Ala BaniIssa", "room": "N-106"}], "spareRooms": [], "students": 17, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Ala BaniIssa"], "notes": ""}, {"id": "2026-09-06-operations-research-11:00", "sourceRow": 31, "course": "Operations Research", "coordinator": "Saleem Zeyad Saleem Ramadan", "dept": "IE", "date": "2026-09-06", "day": "Sunday", "start": "11:00", "end": "13:00", "time": "11:00 - 13:00", "room": "N-205, N-203", "rooms": ["N-205", "N-203"], "assignments": [{"name": "Omar Aldabbas", "room": "N-205"}, {"name": "Leen Alhyari", "room": "N-203"}], "spareRooms": [], "students": 25, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Omar Aldabbas", "Leen Alhyari"], "notes": ""}, {"id": "2026-09-06-functional-maths-13:30", "sourceRow": 32, "course": "Functional Maths", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-06", "day": "Sunday", "start": "13:30", "end": "15:30", "time": "13:30 - 15:30", "room": "W-121, W-125, W-128, W-102", "rooms": ["W-121", "W-125", "W-128", "W-102"], "assignments": [{"name": "Jamal alomari", "room": "W-121"}, {"name": "Farah Almemeh", "room": "W-125"}, {"name": "Anas Alshoubaki", "room": "W-128"}, {"name": "Faris Alsalem", "room": "W-102"}], "spareRooms": [], "students": null, "required": 4, "assigned": 4, "shortfall": 0, "proctors": ["Jamal alomari", "Farah Almemeh", "Anas Alshoubaki", "Faris Alsalem"], "notes": ""}, {"id": "2026-09-07-engineering-math-11:00", "sourceRow": 33, "course": "Engineering Math", "coordinator": "Rami Hammad", "dept": "EE", "date": "2026-09-07", "day": "Monday", "start": "11:00", "end": "13:30", "time": "11:00 - 13:30", "room": "N-301, N-303, N-304, N-306", "rooms": ["N-301", "N-303", "N-304", "N-306"], "assignments": [{"name": "Lara Khraisat", "room": "N-301"}, {"name": "Mohammad alshawabkeh", "room": "N-303"}, {"name": "Razan Bader", "room": "N-304"}, {"name": "Malak Alghadi", "room": "N-306"}], "spareRooms": [], "students": 75, "required": 4, "assigned": 4, "shortfall": 0, "proctors": ["Lara Khraisat", "Mohammad alshawabkeh", "Razan Bader", "Malak Alghadi"], "notes": "N301, N303, N304, N306"}, {"id": "2026-09-07-engineering-design-13:30", "sourceRow": 34, "course": "Engineering Design", "coordinator": "Othman Alsmadi", "dept": "", "date": "2026-09-07", "day": "Monday", "start": "13:30", "end": "16:30", "time": "13:30 - 16:30", "room": "N-106, N-104, N-103", "rooms": ["N-106", "N-104", "N-103"], "assignments": [{"name": "Ala BaniIssa", "room": "N-106"}, {"name": "Faris Alsalem", "room": "N-104"}, {"name": "Sara Alirshedat", "room": "N-103"}], "spareRooms": [], "students": null, "required": 3, "assigned": 3, "shortfall": 0, "proctors": ["Ala BaniIssa", "Faris Alsalem", "Sara Alirshedat"], "notes": ""}, {"id": "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00", "sourceRow": 35, "course": "Fundamentals of Thermodynamics and Heat Engines", "coordinator": "Lena Ali Salem Al-Samameh", "dept": "ME", "date": "2026-09-08", "day": "Tuesday", "start": "09:00", "end": "11:00", "time": "09:00 - 11:00", "room": "N-102, N-104", "rooms": ["N-102", "N-104"], "assignments": [{"name": "Dima Bader", "room": "N-102"}, {"name": "Mohammad Alzubi", "room": "N-104"}], "spareRooms": [], "students": 26, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Dima Bader", "Mohammad Alzubi"], "notes": ""}, {"id": "2026-09-08-electrical-and-electronic-principles-13:30", "sourceRow": 36, "course": "Electrical and Electronic Principles", "coordinator": "Rajaee Nassaer", "dept": "", "date": "2026-09-08", "day": "Tuesday", "start": "13:30", "end": "15:30", "time": "13:30 - 15:30", "room": "N-301, N-303, N-306", "rooms": ["N-301", "N-303", "N-306"], "assignments": [{"name": "Omar Aldabbas", "room": "N-301"}, {"name": "Huthaifa Alkhashaneh", "room": "N-303"}, {"name": "Leen Alhyari", "room": "N-306"}], "spareRooms": [], "students": null, "required": 3, "assigned": 3, "shortfall": 0, "proctors": ["Omar Aldabbas", "Huthaifa Alkhashaneh", "Leen Alhyari"], "notes": ""}, {"id": "2026-09-09-modelling-and-simulation-for-engineers-11:00", "sourceRow": 38, "course": "Modelling and Simulation for Engineers", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "date": "2026-09-09", "day": "Wednesday", "start": "11:00", "end": "14:00", "time": "11:00 - 14:00", "room": "N-106", "rooms": ["N-106"], "assignments": [{"name": "Jamal alomari", "room": "N-106"}], "spareRooms": [], "students": 7, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Jamal alomari"], "notes": "Jamal please"}, {"id": "2026-09-09-virtual-engineering-11:00", "sourceRow": 37, "course": "Virtual Engineering", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "date": "2026-09-09", "day": "Wednesday", "start": "11:00", "end": "14:00", "time": "11:00 - 14:00", "room": "N-106", "rooms": ["N-106"], "assignments": [{"name": "Ala BaniIssa", "room": "N-106"}], "spareRooms": [], "students": 13, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Ala BaniIssa"], "notes": "Alaa and another one please"}, {"id": "2026-09-10-engineering-science-11:00", "sourceRow": 40, "course": "Engineering Science", "coordinator": "Saed Bassam Mohamad Ali Al-Hajjawi", "dept": "EE", "date": "2026-09-10", "day": "Thursday", "start": "11:00", "end": "13:00", "time": "11:00 - 13:00", "room": "W-202, W-203, W-216, W-121, W-128, W-125", "rooms": ["W-202", "W-203", "W-216", "W-121", "W-128", "W-125"], "assignments": [{"name": "Farah Almemeh", "room": "W-202"}, {"name": "Aseel Shahin", "room": "W-203"}, {"name": "Dana Slehat", "room": "W-216"}, {"name": "Lara Khraisat", "room": "W-121"}, {"name": "Abedalaziz Milhem", "room": "W-128"}, {"name": "Ahmad Samha", "room": "W-125"}], "spareRooms": [], "students": 79, "required": 6, "assigned": 6, "shortfall": 0, "proctors": ["Farah Almemeh", "Aseel Shahin", "Dana Slehat", "Lara Khraisat", "Abedalaziz Milhem", "Ahmad Samha"], "notes": ""}, {"id": "2026-09-10-energy-efficiency-and-management-13:00", "sourceRow": 39, "course": "Energy Efficiency and Management", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "date": "2026-09-10", "day": "Thursday", "start": "13:00", "end": "16:00", "time": "13:00 - 16:00", "room": "N-301", "rooms": ["N-301"], "assignments": [{"name": "Razan Bader", "room": "N-301"}], "spareRooms": [], "students": 17, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Razan Bader"], "notes": "Special Topics in Electrical Engineering A is the same course"}, {"id": "2026-09-13-introduction-to-ai-and-data-sciences-09:00", "sourceRow": 42, "course": "Introduction to AI and Data Sciences", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "date": "2026-09-13", "day": "Sunday", "start": "09:00", "end": "11:00", "time": "09:00 - 11:00", "room": "N-101, N-102", "rooms": ["N-101", "N-102"], "assignments": [{"name": "Sara Alirshedat", "room": "N-101"}], "spareRooms": ["N-102"], "students": 24, "required": 2, "assigned": 1, "shortfall": 1, "proctors": ["Sara Alirshedat"], "notes": ""}, {"id": "2026-09-13-industrial-power-electronics-and-storage-12:00", "sourceRow": 41, "course": "Industrial Power, Electronics and Storage", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "date": "2026-09-13", "day": "Sunday", "start": "12:00", "end": "15:00", "time": "12:00 - 15:00", "room": "N-205, N-203", "rooms": ["N-205", "N-203"], "assignments": [{"name": "Mohammad alshawabkeh", "room": "N-205"}, {"name": "Anas Alshoubaki", "room": "N-203"}], "spareRooms": [], "students": 26, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Mohammad alshawabkeh", "Anas Alshoubaki"], "notes": ""}, {"id": "2026-09-13-data-analytics-15:00", "sourceRow": 43, "course": "Data Analytics", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "date": "2026-09-13", "day": "Sunday", "start": "15:00", "end": "17:00", "time": "15:00 - 17:00", "room": "N-101", "rooms": ["N-101"], "assignments": [{"name": "Malak Alghadi", "room": "N-101"}], "spareRooms": [], "students": 19, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Malak Alghadi"], "notes": "Special Topics in Electrical Engineering C (5 students) is the same course"}, {"id": "2026-09-13-further-thermodynamics-15:00", "sourceRow": 44, "course": "Further Thermodynamics", "coordinator": "Nezar Yahya Abdallah Alqudah", "dept": "ME", "date": "2026-09-13", "day": "Sunday", "start": "15:00", "end": "17:00", "time": "15:00 - 17:00", "room": "N-104", "rooms": ["N-104"], "assignments": [{"name": "Nezar AlQudah", "room": "N-104"}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Nezar AlQudah"], "notes": "Eng. Nezar is the Proctor (2 hrs, time TBC)"}], "proctorIndex": [{"name": "Abedalaziz Milhem", "duties": ["2026-09-03-aptitude-test-11:00", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Ahmad Samha", "duties": ["2026-09-10-engineering-science-11:00"], "count": 1, "onRoster": true}, {"name": "Ala BaniIssa", "duties": ["2026-09-05-introduction-to-engineering-drawing-11:00", "2026-09-07-engineering-design-13:30", "2026-09-09-virtual-engineering-11:00"], "count": 3, "onRoster": true}, {"name": "Anas Alshoubaki", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-13-industrial-power-electronics-and-storage-12:00"], "count": 2, "onRoster": true}, {"name": "Aseel Shahin", "duties": ["2026-09-10-engineering-science-11:00"], "count": 1, "onRoster": true}, {"name": "Dana Slehat", "duties": ["2026-09-03-aptitude-test-10:00", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Dima Bader", "duties": ["2026-09-03-aptitude-test-12:00", "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"], "count": 2, "onRoster": true}, {"name": "Farah Almemeh", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Faris Alsalem", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-07-engineering-design-13:30"], "count": 2, "onRoster": true}, {"name": "Huthaifa Alkhashaneh", "duties": ["2026-09-08-electrical-and-electronic-principles-13:30"], "count": 1, "onRoster": true}, {"name": "Jamal alomari", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-09-modelling-and-simulation-for-engineers-11:00"], "count": 2, "onRoster": true}, {"name": "Lara Khraisat", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Leen Alhyari", "duties": ["2026-09-06-operations-research-11:00", "2026-09-08-electrical-and-electronic-principles-13:30"], "count": 2, "onRoster": true}, {"name": "Lina AlSamameh", "duties": [], "count": 0, "onRoster": true}, {"name": "Malak Alghadi", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-13-data-analytics-15:00"], "count": 2, "onRoster": true}, {"name": "Mohammad alshawabkeh", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-13-industrial-power-electronics-and-storage-12:00"], "count": 2, "onRoster": true}, {"name": "Mohammad Alzubi", "duties": ["2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"], "count": 1, "onRoster": true}, {"name": "Mohammad Raed", "duties": ["2026-09-05-further-electrical-electronic-and-digital-principles-10:00", "2026-09-05-further-electrical-electronic-and-digital-principles-10:00"], "count": 2, "onRoster": true}, {"name": "Nezar AlQudah", "duties": ["2026-09-13-further-thermodynamics-15:00"], "count": 1, "onRoster": true}, {"name": "Nouralhuda Alenaizat", "duties": [], "count": 0, "onRoster": true}, {"name": "Omar Aldabbas", "duties": ["2026-09-06-operations-research-11:00", "2026-09-08-electrical-and-electronic-principles-13:30"], "count": 2, "onRoster": true}, {"name": "Radi alrashed", "duties": [], "count": 0, "onRoster": true}, {"name": "Rajaie Nassar", "duties": [], "count": 0, "onRoster": true}, {"name": "Razan Bader", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-10-energy-efficiency-and-management-13:00"], "count": 2, "onRoster": true}, {"name": "Sara Alirshedat", "duties": ["2026-09-07-engineering-design-13:30", "2026-09-13-introduction-to-ai-and-data-sciences-09:00"], "count": 2, "onRoster": true}, {"name": "Tala AbdelHadi", "duties": [], "count": 0, "onRoster": true}], "courseIndex": [{"course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "sittings": ["2026-09-03-aptitude-test-10:00", "2026-09-03-aptitude-test-11:00", "2026-09-03-aptitude-test-12:00"]}, {"course": "Data Analytics", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "sittings": ["2026-09-13-data-analytics-15:00"]}, {"course": "Electrical and Electronic Principles", "coordinator": "Rajaee Nassaer", "dept": "", "sittings": ["2026-09-08-electrical-and-electronic-principles-13:30"]}, {"course": "Energy Efficiency and Management", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "sittings": ["2026-09-10-energy-efficiency-and-management-13:00"]}, {"course": "Engineering Design", "coordinator": "Othman Alsmadi", "dept": "", "sittings": ["2026-09-07-engineering-design-13:30"]}, {"course": "Engineering Math", "coordinator": "Rami Hammad", "dept": "EE", "sittings": ["2026-09-07-engineering-math-11:00"]}, {"course": "Engineering Science", "coordinator": "Saed Bassam Mohamad Ali Al-Hajjawi", "dept": "EE", "sittings": ["2026-09-10-engineering-science-11:00"]}, {"course": "Functional Maths", "coordinator": "Dr. Lutfi", "dept": "", "sittings": ["2026-09-06-functional-maths-13:30"]}, {"course": "Fundamentals of Thermodynamics and Heat Engines", "coordinator": "Lena Ali Salem Al-Samameh", "dept": "ME", "sittings": ["2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"]}, {"course": "Further Electrical, Electronic and Digital Principles", "coordinator": "Razan Fayez Mahmoud Shatnawi", "dept": "EE", "sittings": ["2026-09-05-further-electrical-electronic-and-digital-principles-10:00"]}, {"course": "Further Thermodynamics", "coordinator": "Nezar Yahya Abdallah Alqudah", "dept": "ME", "sittings": ["2026-09-13-further-thermodynamics-15:00"]}, {"course": "Industrial Power, Electronics and Storage", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "sittings": ["2026-09-13-industrial-power-electronics-and-storage-12:00"]}, {"course": "Introduction to AI and Data Sciences", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "sittings": ["2026-09-13-introduction-to-ai-and-data-sciences-09:00"]}, {"course": "Introduction to Engineering Drawing", "coordinator": "Ala' Abdel Rahman Sanad Bani Issa", "dept": "ME", "sittings": ["2026-09-05-introduction-to-engineering-drawing-11:00"]}, {"course": "Modelling and Simulation for Engineers", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "sittings": ["2026-09-09-modelling-and-simulation-for-engineers-11:00"]}, {"course": "Operations Research", "coordinator": "Saleem Zeyad Saleem Ramadan", "dept": "IE", "sittings": ["2026-09-06-operations-research-11:00"]}, {"course": "Virtual Engineering", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "sittings": ["2026-09-09-virtual-engineering-11:00"]}]};
+  var DATA = {"generatedAt": "2026-09-04T18:36:44+03:00", "sourceFile": "Proctor Schedule by Date.xlsm", "sourceModified": "2026-09-04T15:08:58+03:00", "windowStart": "2026-09-03", "summary": {"exams": 19, "totalStudents": 438, "seatsRequired": 39, "seatsAssigned": 38, "examsShort": 1, "seatsShort": 1, "examsWithoutTarget": 0, "proctors": 21, "rosterSize": 26}, "exams": [{"id": "2026-09-03-aptitude-test-10:00", "sourceRow": 26, "course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-03", "day": "Thursday", "start": "10:00", "end": "11:00", "time": "10:00 - 11:00", "room": "TBC", "rooms": [], "assignments": [{"name": "Dana Slehat", "room": ""}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Dana Slehat"], "notes": ""}, {"id": "2026-09-03-aptitude-test-11:00", "sourceRow": 27, "course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-03", "day": "Thursday", "start": "11:00", "end": "12:00", "time": "11:00 - 12:00", "room": "TBC", "rooms": [], "assignments": [{"name": "Abedalaziz Milhem", "room": ""}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Abedalaziz Milhem"], "notes": ""}, {"id": "2026-09-03-aptitude-test-12:00", "sourceRow": 28, "course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-03", "day": "Thursday", "start": "12:00", "end": "13:00", "time": "12:00 - 13:00", "room": "TBC", "rooms": [], "assignments": [{"name": "Dima Bader", "room": ""}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Dima Bader"], "notes": ""}, {"id": "2026-09-05-further-electrical-electronic-and-digital-principles-10:00", "sourceRow": 30, "course": "Further Electrical, Electronic and Digital Principles", "coordinator": "Razan Fayez Mahmoud Shatnawi", "dept": "EE", "date": "2026-09-05", "day": "Saturday", "start": "10:00", "end": "16:00", "time": "10:00 - 16:00", "room": "N-303, N-306", "rooms": ["N-303", "N-306"], "assignments": [{"name": "Mohammad Raed", "room": "N-303"}, {"name": "Mohammad Raed", "room": "N-306"}], "spareRooms": [], "students": 30, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Mohammad Raed", "Mohammad Raed"], "notes": "N303, N306 already reserved"}, {"id": "2026-09-05-introduction-to-engineering-drawing-11:00", "sourceRow": 29, "course": "Introduction to Engineering Drawing", "coordinator": "Ala' Abdel Rahman Sanad Bani Issa", "dept": "ME", "date": "2026-09-05", "day": "Saturday", "start": "11:00", "end": "14:00", "time": "11:00 - 14:00", "room": "N-106", "rooms": ["N-106"], "assignments": [{"name": "Ala BaniIssa", "room": "N-106"}], "spareRooms": [], "students": 17, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Ala BaniIssa"], "notes": ""}, {"id": "2026-09-06-operations-research-11:00", "sourceRow": 31, "course": "Operations Research", "coordinator": "Saleem Zeyad Saleem Ramadan", "dept": "IE", "date": "2026-09-06", "day": "Sunday", "start": "11:00", "end": "13:00", "time": "11:00 - 13:00", "room": "N-205, N-203", "rooms": ["N-205", "N-203"], "assignments": [{"name": "Omar Aldabbas", "room": "N-205"}, {"name": "Leen Alhyari", "room": "N-203"}], "spareRooms": [], "students": 25, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Omar Aldabbas", "Leen Alhyari"], "notes": ""}, {"id": "2026-09-06-functional-maths-13:30", "sourceRow": 32, "course": "Functional Maths", "coordinator": "Dr. Lutfi", "dept": "", "date": "2026-09-06", "day": "Sunday", "start": "13:30", "end": "15:30", "time": "13:30 - 15:30", "room": "W-121, W-125, W-128, W-102", "rooms": ["W-121", "W-125", "W-128", "W-102"], "assignments": [{"name": "Jamal alomari", "room": "W-121"}, {"name": "Farah Almemeh", "room": "W-125"}, {"name": "Anas Alshoubaki", "room": "W-128"}, {"name": "Faris Alsalem", "room": "W-102"}], "spareRooms": [], "students": null, "required": 4, "assigned": 4, "shortfall": 0, "proctors": ["Jamal alomari", "Farah Almemeh", "Anas Alshoubaki", "Faris Alsalem"], "notes": ""}, {"id": "2026-09-07-engineering-math-11:00", "sourceRow": 33, "course": "Engineering Math", "coordinator": "Rami Hammad", "dept": "EE", "date": "2026-09-07", "day": "Monday", "start": "11:00", "end": "13:30", "time": "11:00 - 13:30", "room": "N-301, N-303, N-304, N-306", "rooms": ["N-301", "N-303", "N-304", "N-306"], "assignments": [{"name": "Lara Khraisat", "room": "N-301"}, {"name": "Mohammad alshawabkeh", "room": "N-303"}, {"name": "Razan Bader", "room": "N-304"}, {"name": "Malak Alghadi", "room": "N-306"}], "spareRooms": [], "students": 75, "required": 4, "assigned": 4, "shortfall": 0, "proctors": ["Lara Khraisat", "Mohammad alshawabkeh", "Razan Bader", "Malak Alghadi"], "notes": "N301, N303, N304, N306"}, {"id": "2026-09-07-engineering-design-13:30", "sourceRow": 34, "course": "Engineering Design", "coordinator": "Othman Alsmadi", "dept": "", "date": "2026-09-07", "day": "Monday", "start": "13:30", "end": "16:30", "time": "13:30 - 16:30", "room": "N-106, N-104, N-103", "rooms": ["N-106", "N-104", "N-103"], "assignments": [{"name": "Ala BaniIssa", "room": "N-106"}, {"name": "Faris Alsalem", "room": "N-104"}, {"name": "Sara Alirshedat", "room": "N-103"}], "spareRooms": [], "students": null, "required": 3, "assigned": 3, "shortfall": 0, "proctors": ["Ala BaniIssa", "Faris Alsalem", "Sara Alirshedat"], "notes": ""}, {"id": "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00", "sourceRow": 35, "course": "Fundamentals of Thermodynamics and Heat Engines", "coordinator": "Lena Ali Salem Al-Samameh", "dept": "ME", "date": "2026-09-08", "day": "Tuesday", "start": "09:00", "end": "11:00", "time": "09:00 - 11:00", "room": "N-102, N-104", "rooms": ["N-102", "N-104"], "assignments": [{"name": "Dima Bader", "room": "N-102"}, {"name": "Mohammad Alzubi", "room": "N-104"}], "spareRooms": [], "students": 26, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Dima Bader", "Mohammad Alzubi"], "notes": ""}, {"id": "2026-09-08-electrical-and-electronic-principles-13:30", "sourceRow": 36, "course": "Electrical and Electronic Principles", "coordinator": "Rajaee Nassaer", "dept": "", "date": "2026-09-08", "day": "Tuesday", "start": "13:30", "end": "15:30", "time": "13:30 - 15:30", "room": "N-301, N-303, N-306", "rooms": ["N-301", "N-303", "N-306"], "assignments": [{"name": "Omar Aldabbas", "room": "N-301"}, {"name": "Huthaifa Alkhashaneh", "room": "N-303"}, {"name": "Leen Alhyari", "room": "N-306"}], "spareRooms": [], "students": null, "required": 3, "assigned": 3, "shortfall": 0, "proctors": ["Omar Aldabbas", "Huthaifa Alkhashaneh", "Leen Alhyari"], "notes": ""}, {"id": "2026-09-09-modelling-and-simulation-for-engineers-11:00", "sourceRow": 38, "course": "Modelling and Simulation for Engineers", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "date": "2026-09-09", "day": "Wednesday", "start": "11:00", "end": "14:00", "time": "11:00 - 14:00", "room": "N-106", "rooms": ["N-106"], "assignments": [{"name": "Jamal alomari", "room": "N-106"}], "spareRooms": [], "students": 7, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Jamal alomari"], "notes": "Jamal please"}, {"id": "2026-09-09-virtual-engineering-11:00", "sourceRow": 37, "course": "Virtual Engineering", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "date": "2026-09-09", "day": "Wednesday", "start": "11:00", "end": "14:00", "time": "11:00 - 14:00", "room": "N-106", "rooms": ["N-106"], "assignments": [{"name": "Ala BaniIssa", "room": "N-106"}], "spareRooms": [], "students": 13, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Ala BaniIssa"], "notes": "Alaa and another one please"}, {"id": "2026-09-10-engineering-science-11:00", "sourceRow": 40, "course": "Engineering Science", "coordinator": "Saed Bassam Mohamad Ali Al-Hajjawi", "dept": "EE", "date": "2026-09-10", "day": "Thursday", "start": "11:00", "end": "13:00", "time": "11:00 - 13:00", "room": "W-202, W-203, W-216, W-121, W-128, W-125", "rooms": ["W-202", "W-203", "W-216", "W-121", "W-128", "W-125"], "assignments": [{"name": "Farah Almemeh", "room": "W-202"}, {"name": "Aseel Shahin", "room": "W-203"}, {"name": "Dana Slehat", "room": "W-216"}, {"name": "Lara Khraisat", "room": "W-121"}, {"name": "Abedalaziz Milhem", "room": "W-128"}, {"name": "Ahmad Samha", "room": "W-125"}], "spareRooms": [], "students": 79, "required": 6, "assigned": 6, "shortfall": 0, "proctors": ["Farah Almemeh", "Aseel Shahin", "Dana Slehat", "Lara Khraisat", "Abedalaziz Milhem", "Ahmad Samha"], "notes": ""}, {"id": "2026-09-10-energy-efficiency-and-management-13:00", "sourceRow": 39, "course": "Energy Efficiency and Management", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "date": "2026-09-10", "day": "Thursday", "start": "13:00", "end": "16:00", "time": "13:00 - 16:00", "room": "N-301", "rooms": ["N-301"], "assignments": [{"name": "Razan Bader", "room": "N-301"}], "spareRooms": [], "students": 17, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Razan Bader"], "notes": "Special Topics in Electrical Engineering A is the same course"}, {"id": "2026-09-13-introduction-to-ai-and-data-sciences-09:00", "sourceRow": 42, "course": "Introduction to AI and Data Sciences", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "date": "2026-09-13", "day": "Sunday", "start": "09:00", "end": "11:00", "time": "09:00 - 11:00", "room": "N-101, N-102", "rooms": ["N-101", "N-102"], "assignments": [{"name": "Sara Alirshedat", "room": "N-101"}], "spareRooms": ["N-102"], "students": 24, "required": 2, "assigned": 1, "shortfall": 1, "proctors": ["Sara Alirshedat"], "notes": ""}, {"id": "2026-09-13-industrial-power-electronics-and-storage-12:00", "sourceRow": 41, "course": "Industrial Power, Electronics and Storage", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "date": "2026-09-13", "day": "Sunday", "start": "12:00", "end": "15:00", "time": "12:00 - 15:00", "room": "N-205, N-203", "rooms": ["N-205", "N-203"], "assignments": [{"name": "Mohammad alshawabkeh", "room": "N-205"}, {"name": "Anas Alshoubaki", "room": "N-203"}], "spareRooms": [], "students": 26, "required": 2, "assigned": 2, "shortfall": 0, "proctors": ["Mohammad alshawabkeh", "Anas Alshoubaki"], "notes": ""}, {"id": "2026-09-13-data-analytics-15:00", "sourceRow": 43, "course": "Data Analytics", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "date": "2026-09-13", "day": "Sunday", "start": "15:00", "end": "17:00", "time": "15:00 - 17:00", "room": "N-101", "rooms": ["N-101"], "assignments": [{"name": "Malak Alghadi", "room": "N-101"}], "spareRooms": [], "students": 19, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Malak Alghadi"], "notes": "Special Topics in Electrical Engineering C (5 students) is the same course"}, {"id": "2026-09-13-further-thermodynamics-15:00", "sourceRow": 44, "course": "Further Thermodynamics", "coordinator": "Nezar Yahya Abdallah Alqudah", "dept": "ME", "date": "2026-09-13", "day": "Sunday", "start": "15:00", "end": "17:00", "time": "15:00 - 17:00", "room": "N-104", "rooms": ["N-104"], "assignments": [{"name": "Nezar AlQudah", "room": "N-104"}], "spareRooms": [], "students": 20, "required": 1, "assigned": 1, "shortfall": 0, "proctors": ["Nezar AlQudah"], "notes": "Eng. Nezar is the Proctor (2 hrs, time TBC)"}], "proctorIndex": [{"name": "Abedalaziz Milhem", "duties": ["2026-09-03-aptitude-test-11:00", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Ahmad Samha", "duties": ["2026-09-10-engineering-science-11:00"], "count": 1, "onRoster": true}, {"name": "Ala BaniIssa", "duties": ["2026-09-05-introduction-to-engineering-drawing-11:00", "2026-09-07-engineering-design-13:30", "2026-09-09-virtual-engineering-11:00"], "count": 3, "onRoster": true}, {"name": "Anas Alshoubaki", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-13-industrial-power-electronics-and-storage-12:00"], "count": 2, "onRoster": true}, {"name": "Aseel Shahin", "duties": ["2026-09-10-engineering-science-11:00"], "count": 1, "onRoster": true}, {"name": "Dana Slehat", "duties": ["2026-09-03-aptitude-test-10:00", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Dima Bader", "duties": ["2026-09-03-aptitude-test-12:00", "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"], "count": 2, "onRoster": true}, {"name": "Farah Almemeh", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Faris Alsalem", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-07-engineering-design-13:30"], "count": 2, "onRoster": true}, {"name": "Huthaifa Alkhashaneh", "duties": ["2026-09-08-electrical-and-electronic-principles-13:30"], "count": 1, "onRoster": true}, {"name": "Jamal alomari", "duties": ["2026-09-06-functional-maths-13:30", "2026-09-09-modelling-and-simulation-for-engineers-11:00"], "count": 2, "onRoster": true}, {"name": "Lara Khraisat", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-10-engineering-science-11:00"], "count": 2, "onRoster": true}, {"name": "Leen Alhyari", "duties": ["2026-09-06-operations-research-11:00", "2026-09-08-electrical-and-electronic-principles-13:30"], "count": 2, "onRoster": true}, {"name": "Lina AlSamameh", "duties": [], "count": 0, "onRoster": true}, {"name": "Malak Alghadi", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-13-data-analytics-15:00"], "count": 2, "onRoster": true}, {"name": "Mohammad alshawabkeh", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-13-industrial-power-electronics-and-storage-12:00"], "count": 2, "onRoster": true}, {"name": "Mohammad Alzubi", "duties": ["2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"], "count": 1, "onRoster": true}, {"name": "Mohammad Raed", "duties": ["2026-09-05-further-electrical-electronic-and-digital-principles-10:00", "2026-09-05-further-electrical-electronic-and-digital-principles-10:00"], "count": 2, "onRoster": true}, {"name": "Nezar AlQudah", "duties": ["2026-09-13-further-thermodynamics-15:00"], "count": 1, "onRoster": true}, {"name": "Nouralhuda Alenaizat", "duties": [], "count": 0, "onRoster": true}, {"name": "Omar Aldabbas", "duties": ["2026-09-06-operations-research-11:00", "2026-09-08-electrical-and-electronic-principles-13:30"], "count": 2, "onRoster": true}, {"name": "Radi alrashed", "duties": [], "count": 0, "onRoster": true}, {"name": "Rajaie Nassar", "duties": [], "count": 0, "onRoster": true}, {"name": "Razan Bader", "duties": ["2026-09-07-engineering-math-11:00", "2026-09-10-energy-efficiency-and-management-13:00"], "count": 2, "onRoster": true}, {"name": "Sara Alirshedat", "duties": ["2026-09-07-engineering-design-13:30", "2026-09-13-introduction-to-ai-and-data-sciences-09:00"], "count": 2, "onRoster": true}, {"name": "Tala AbdelHadi", "duties": [], "count": 0, "onRoster": true}], "courseIndex": [{"course": "Aptitude Test", "coordinator": "Dr. Lutfi", "dept": "", "sittings": ["2026-09-03-aptitude-test-10:00", "2026-09-03-aptitude-test-11:00", "2026-09-03-aptitude-test-12:00"]}, {"course": "Data Analytics", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "sittings": ["2026-09-13-data-analytics-15:00"]}, {"course": "Electrical and Electronic Principles", "coordinator": "Rajaee Nassaer", "dept": "", "sittings": ["2026-09-08-electrical-and-electronic-principles-13:30"]}, {"course": "Energy Efficiency and Management", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "sittings": ["2026-09-10-energy-efficiency-and-management-13:00"]}, {"course": "Engineering Design", "coordinator": "Othman Alsmadi", "dept": "", "sittings": ["2026-09-07-engineering-design-13:30"]}, {"course": "Engineering Math", "coordinator": "Rami Hammad", "dept": "EE", "sittings": ["2026-09-07-engineering-math-11:00"]}, {"course": "Engineering Science", "coordinator": "Saed Bassam Mohamad Ali Al-Hajjawi", "dept": "EE", "sittings": ["2026-09-10-engineering-science-11:00"]}, {"course": "Functional Maths", "coordinator": "Dr. Lutfi", "dept": "", "sittings": ["2026-09-06-functional-maths-13:30"]}, {"course": "Fundamentals of Thermodynamics and Heat Engines", "coordinator": "Lena Ali Salem Al-Samameh", "dept": "ME", "sittings": ["2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"]}, {"course": "Further Electrical, Electronic and Digital Principles", "coordinator": "Razan Fayez Mahmoud Shatnawi", "dept": "EE", "sittings": ["2026-09-05-further-electrical-electronic-and-digital-principles-10:00"]}, {"course": "Further Thermodynamics", "coordinator": "Nezar Yahya Abdallah Alqudah", "dept": "ME", "sittings": ["2026-09-13-further-thermodynamics-15:00"]}, {"course": "Industrial Power, Electronics and Storage", "coordinator": "Khaled Ahmad Mahmoud Alza'areer", "dept": "EE", "sittings": ["2026-09-13-industrial-power-electronics-and-storage-12:00"]}, {"course": "Introduction to AI and Data Sciences", "coordinator": "Ahmad Yousef Sulaiman Abu Sleem", "dept": "IE", "sittings": ["2026-09-13-introduction-to-ai-and-data-sciences-09:00"]}, {"course": "Introduction to Engineering Drawing", "coordinator": "Ala' Abdel Rahman Sanad Bani Issa", "dept": "ME", "sittings": ["2026-09-05-introduction-to-engineering-drawing-11:00"]}, {"course": "Modelling and Simulation for Engineers", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "sittings": ["2026-09-09-modelling-and-simulation-for-engineers-11:00"]}, {"course": "Operations Research", "coordinator": "Saleem Zeyad Saleem Ramadan", "dept": "IE", "sittings": ["2026-09-06-operations-research-11:00"]}, {"course": "Virtual Engineering", "coordinator": "Yazan Ahmad Rashad Manna", "dept": "ME", "sittings": ["2026-09-09-virtual-engineering-11:00"]}]};
 
   var TODAY = new Date(); TODAY.setHours(0, 0, 0, 0);
   var MON = ["January","February","March","April","May","June",
              "July","August","September","October","November","December"];
   var WD = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-  var state = { view: "all", me: "", course: "" };
+  var state = {
+    view: "all", me: "", course: "",
+    q: "", day: "", scope: "upcoming", dept: ""   // full-schedule filters
+  };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -542,8 +625,94 @@
   }
 
   /* ---------- views ---------- */
+  // Every date that has an exam, for the strip along the top.
+  var DATES = (function () {
+    var seen = {}, out = [];
+    DATA.exams.forEach(function (e) {
+      if (e.date && !seen[e.date]) { seen[e.date] = 1; out.push(e.date); }
+    });
+    return out.sort();
+  })();
+
+  function stripHtml() {
+    return '<div class="strip">' + DATES.map(function (iso) {
+      var on = DATA.exams.filter(function (e) { return e.date === iso; });
+      var d = asDate(iso);
+      var cls = ["dtile"];
+      if (dayGap(iso) === 0) cls.push("today");
+      if (asDate(iso) < TODAY) cls.push("gone");
+      var dots = on.slice(0, 7).map(function (e) {
+        return '<i class="' + (e.shortfall ? "short" : "") + '"></i>';
+      }).join("");
+      return '<button class="' + cls.join(" ") + '" data-day="' + iso +
+        '" aria-pressed="' + (state.day === iso) + '" title="' + on.length +
+        (on.length === 1 ? " exam" : " exams") + '">' +
+        '<span class="wd">' + WD[d.getDay()].slice(0, 3) + "</span>" +
+        '<span class="dn">' + d.getDate() + "</span>" +
+        '<span class="mo">' + MON[d.getMonth()].slice(0, 3) + "</span>" +
+        '<span class="dots">' + dots + "</span></button>";
+    }).join("") + "</div>";
+  }
+
   function viewAll() {
-    return rosterHtml(DATA.exams) + shortNote();
+    var q = state.q.toLowerCase().trim();
+
+    var depts = [];
+    DATA.exams.forEach(function (e) { if (e.dept && depts.indexOf(e.dept) < 0) depts.push(e.dept); });
+    depts.sort();
+
+    var rows = DATA.exams.filter(function (e) {
+      if (state.day && e.date !== state.day) return false;
+      if (state.dept && e.dept !== state.dept) return false;
+      if (!state.day) {
+        if (state.scope === "upcoming" && past(e)) return false;
+        if (state.scope === "done" && !past(e)) return false;
+      }
+      if (!q) return true;
+      return (e.course + " " + e.coordinator + " " + e.room + " " + e.dept + " " +
+              e.proctors.join(" ")).toLowerCase().indexOf(q) > -1;
+    });
+
+    var out = [];
+    out.push('<div class="searchbar">' +
+      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4 14 14"/></svg>' +
+      '<input id="find" type="text" autocomplete="off" placeholder="Search a course, room, ' +
+      'coordinator or proctor" value="' + esc(state.q) + '">' +
+      (state.q ? '<button class="clear" id="clearq">Clear</button>' : "") + "</div>");
+
+    out.push(stripHtml());
+
+    out.push('<div class="filters">');
+    [["upcoming", "Still to come"], ["all", "Everything"], ["done", "Finished"]].forEach(function (s) {
+      out.push('<button data-scope="' + s[0] + '" aria-pressed="' +
+               (!state.day && state.scope === s[0]) + '">' + s[1] + "</button>");
+    });
+    if (depts.length) {
+      out.push('<span class="sep"></span>');
+      out.push('<button data-dept="" aria-pressed="' + (!state.dept) + '">All departments</button>');
+      depts.forEach(function (d) {
+        out.push('<button data-dept="' + esc(d) + '" aria-pressed="' +
+                 (state.dept === d) + '">' + esc(d) + "</button>");
+      });
+    }
+    if (state.day) {
+      out.push('<span class="sep"></span><button data-day="">Show every day</button>');
+    }
+    out.push("</div>");
+
+    out.push('<p class="count">' + rows.length + (rows.length === 1 ? " exam" : " exams") +
+      (state.day ? " on " + esc(prettyDay(state.day)) : "") + "</p>");
+
+    out.push(rows.length ? rosterHtml(rows)
+      : '<div class="nothing"><b>Nothing matches</b>Try a different search, or clear the filters.</div>');
+
+    return out.join("") + shortNote();
+  }
+
+  function prettyDay(iso) {
+    var d = asDate(iso);
+    return d ? d.getDate() + " " + MON[d.getMonth()] : iso;
   }
 
   function viewMine() {
@@ -643,10 +812,30 @@
     render();
   });
 
+  // Typing re-renders the list, so put the caret back where it was.
+  document.getElementById("body").addEventListener("input", function (ev) {
+    if (ev.target.id !== "find") return;
+    var caret = ev.target.selectionStart;
+    state.q = ev.target.value;
+    render();
+    var again = document.getElementById("find");
+    if (again) { again.focus(); again.setSelectionRange(caret, caret); }
+  });
+
   document.getElementById("body").addEventListener("click", function (ev) {
     var b = ev.target.closest("button");
     if (!b) return;
-    if (b.dataset.course !== undefined) {
+    if (b.dataset.day !== undefined) {
+      state.day = b.dataset.day === state.day ? "" : b.dataset.day;
+      render();
+    } else if (b.dataset.scope !== undefined) {
+      state.scope = b.dataset.scope; state.day = ""; render();
+    } else if (b.dataset.dept !== undefined) {
+      state.dept = b.dataset.dept; render();
+    } else if (b.id === "clearq") {
+      state.q = ""; render();
+      var f = document.getElementById("find"); if (f) f.focus();
+    } else if (b.dataset.course !== undefined) {
       state.course = state.course === b.dataset.course ? "" : b.dataset.course;
       render();
     } else if (b.id === "copy") {

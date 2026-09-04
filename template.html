@@ -161,6 +161,86 @@
   .tool:hover { color: var(--ink); border-color: var(--ink-3); }
   .tool:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
 
+  /* ---------- search + filters on the full schedule ---------- */
+  .searchbar {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 26px;
+    background: var(--paper-2);
+    border: 1.5px solid var(--rule);
+    border-radius: 3px;
+    padding: 0 16px;
+  }
+  .searchbar:focus-within { border-color: var(--ink); background: var(--paper); }
+  .searchbar svg { flex: none; color: var(--ink-3); }
+  .searchbar input {
+    flex: 1; min-width: 0; font: inherit; font-size: 16px;
+    color: var(--ink); background: none; border: 0; outline: none; padding: 13px 0;
+  }
+  .searchbar input::placeholder { color: var(--ink-3); }
+  .searchbar .clear {
+    appearance: none; background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 13.5px; font-weight: 600; color: var(--ink-3);
+    padding: 6px 0 6px 10px;
+  }
+  .searchbar .clear:hover { color: var(--pen); }
+
+  /* the day strip: each tile carries one dot per exam that day */
+  .strip {
+    display: flex; gap: 8px; overflow-x: auto;
+    margin-top: 18px; padding: 2px 1px 10px;
+    scrollbar-width: thin;
+  }
+  .dtile {
+    flex: 0 0 auto; width: 64px;
+    appearance: none; cursor: pointer; font: inherit;
+    background: var(--paper); color: var(--ink);
+    border: 1.5px solid var(--rule); border-radius: 3px;
+    padding: 8px 4px 7px; text-align: center;
+    transition: border-color .12s ease, background .12s ease;
+  }
+  .dtile:hover { border-color: var(--ink-3); }
+  .dtile:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .dtile .wd { display: block; font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+  .dtile .dn {
+    display: block; font-family: var(--serif); font-weight: 700;
+    font-size: 25px; line-height: 1.08; letter-spacing: -.03em;
+  }
+  .dtile .mo { display: block; font-size: 11px; color: var(--ink-3); }
+  .dtile .dots {
+    display: flex; gap: 3px; justify-content: center; margin-top: 6px; min-height: 6px;
+  }
+  .dtile .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); }
+  .dtile .dots i.short { background: var(--pen); }
+  .dtile.today { border-color: var(--mark-deep); }
+  .dtile.gone { opacity: .45; }
+  .dtile[aria-pressed="true"] {
+    background: var(--mark); border-color: var(--ink);
+  }
+  .dtile[aria-pressed="true"] .wd,
+  .dtile[aria-pressed="true"] .mo { color: var(--ink); }
+  .dtile[aria-pressed="true"] .dots i { background: var(--ink); }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 6px; }
+  .filters .sep { width: 1px; height: 18px; background: var(--rule); margin: 0 4px; }
+  .filters button {
+    appearance: none; cursor: pointer; font: inherit;
+    font-size: 13.5px; font-weight: 600;
+    background: none; color: var(--ink-3);
+    border: 1.5px solid var(--rule); border-radius: 2px;
+    padding: 6px 12px;
+    transition: color .12s ease, border-color .12s ease;
+  }
+  .filters button:hover { color: var(--ink); border-color: var(--ink-3); }
+  .filters button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .filters button[aria-pressed="true"] {
+    color: var(--ink); border-color: var(--ink); background: var(--mark-soft);
+  }
+
+  .count {
+    margin: 22px 0 0; font-size: 14px; font-weight: 600; color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+
   /* ---------- the schedule ---------- */
   .day { margin-top: 40px; }
   .day-mark {
@@ -333,7 +413,10 @@
              "July","August","September","October","November","December"];
   var WD = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-  var state = { view: "all", me: "", course: "" };
+  var state = {
+    view: "all", me: "", course: "",
+    q: "", day: "", scope: "upcoming", dept: ""   // full-schedule filters
+  };
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -533,8 +616,94 @@
   }
 
   /* ---------- views ---------- */
+  // Every date that has an exam, for the strip along the top.
+  var DATES = (function () {
+    var seen = {}, out = [];
+    DATA.exams.forEach(function (e) {
+      if (e.date && !seen[e.date]) { seen[e.date] = 1; out.push(e.date); }
+    });
+    return out.sort();
+  })();
+
+  function stripHtml() {
+    return '<div class="strip">' + DATES.map(function (iso) {
+      var on = DATA.exams.filter(function (e) { return e.date === iso; });
+      var d = asDate(iso);
+      var cls = ["dtile"];
+      if (dayGap(iso) === 0) cls.push("today");
+      if (asDate(iso) < TODAY) cls.push("gone");
+      var dots = on.slice(0, 7).map(function (e) {
+        return '<i class="' + (e.shortfall ? "short" : "") + '"></i>';
+      }).join("");
+      return '<button class="' + cls.join(" ") + '" data-day="' + iso +
+        '" aria-pressed="' + (state.day === iso) + '" title="' + on.length +
+        (on.length === 1 ? " exam" : " exams") + '">' +
+        '<span class="wd">' + WD[d.getDay()].slice(0, 3) + "</span>" +
+        '<span class="dn">' + d.getDate() + "</span>" +
+        '<span class="mo">' + MON[d.getMonth()].slice(0, 3) + "</span>" +
+        '<span class="dots">' + dots + "</span></button>";
+    }).join("") + "</div>";
+  }
+
   function viewAll() {
-    return rosterHtml(DATA.exams) + shortNote();
+    var q = state.q.toLowerCase().trim();
+
+    var depts = [];
+    DATA.exams.forEach(function (e) { if (e.dept && depts.indexOf(e.dept) < 0) depts.push(e.dept); });
+    depts.sort();
+
+    var rows = DATA.exams.filter(function (e) {
+      if (state.day && e.date !== state.day) return false;
+      if (state.dept && e.dept !== state.dept) return false;
+      if (!state.day) {
+        if (state.scope === "upcoming" && past(e)) return false;
+        if (state.scope === "done" && !past(e)) return false;
+      }
+      if (!q) return true;
+      return (e.course + " " + e.coordinator + " " + e.room + " " + e.dept + " " +
+              e.proctors.join(" ")).toLowerCase().indexOf(q) > -1;
+    });
+
+    var out = [];
+    out.push('<div class="searchbar">' +
+      '<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.7" aria-hidden="true"><circle cx="7" cy="7" r="4.6"/><path d="M10.4 10.4 14 14"/></svg>' +
+      '<input id="find" type="text" autocomplete="off" placeholder="Search a course, room, ' +
+      'coordinator or proctor" value="' + esc(state.q) + '">' +
+      (state.q ? '<button class="clear" id="clearq">Clear</button>' : "") + "</div>");
+
+    out.push(stripHtml());
+
+    out.push('<div class="filters">');
+    [["upcoming", "Still to come"], ["all", "Everything"], ["done", "Finished"]].forEach(function (s) {
+      out.push('<button data-scope="' + s[0] + '" aria-pressed="' +
+               (!state.day && state.scope === s[0]) + '">' + s[1] + "</button>");
+    });
+    if (depts.length) {
+      out.push('<span class="sep"></span>');
+      out.push('<button data-dept="" aria-pressed="' + (!state.dept) + '">All departments</button>');
+      depts.forEach(function (d) {
+        out.push('<button data-dept="' + esc(d) + '" aria-pressed="' +
+                 (state.dept === d) + '">' + esc(d) + "</button>");
+      });
+    }
+    if (state.day) {
+      out.push('<span class="sep"></span><button data-day="">Show every day</button>');
+    }
+    out.push("</div>");
+
+    out.push('<p class="count">' + rows.length + (rows.length === 1 ? " exam" : " exams") +
+      (state.day ? " on " + esc(prettyDay(state.day)) : "") + "</p>");
+
+    out.push(rows.length ? rosterHtml(rows)
+      : '<div class="nothing"><b>Nothing matches</b>Try a different search, or clear the filters.</div>');
+
+    return out.join("") + shortNote();
+  }
+
+  function prettyDay(iso) {
+    var d = asDate(iso);
+    return d ? d.getDate() + " " + MON[d.getMonth()] : iso;
   }
 
   function viewMine() {
@@ -634,10 +803,30 @@
     render();
   });
 
+  // Typing re-renders the list, so put the caret back where it was.
+  document.getElementById("body").addEventListener("input", function (ev) {
+    if (ev.target.id !== "find") return;
+    var caret = ev.target.selectionStart;
+    state.q = ev.target.value;
+    render();
+    var again = document.getElementById("find");
+    if (again) { again.focus(); again.setSelectionRange(caret, caret); }
+  });
+
   document.getElementById("body").addEventListener("click", function (ev) {
     var b = ev.target.closest("button");
     if (!b) return;
-    if (b.dataset.course !== undefined) {
+    if (b.dataset.day !== undefined) {
+      state.day = b.dataset.day === state.day ? "" : b.dataset.day;
+      render();
+    } else if (b.dataset.scope !== undefined) {
+      state.scope = b.dataset.scope; state.day = ""; render();
+    } else if (b.dataset.dept !== undefined) {
+      state.dept = b.dataset.dept; render();
+    } else if (b.id === "clearq") {
+      state.q = ""; render();
+      var f = document.getElementById("find"); if (f) f.focus();
+    } else if (b.dataset.course !== undefined) {
       state.course = state.course === b.dataset.course ? "" : b.dataset.course;
       render();
     } else if (b.id === "copy") {
