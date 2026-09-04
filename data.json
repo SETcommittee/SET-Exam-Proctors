@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-04T18:44:12+03:00",
+ "generatedAt": "2026-09-05T01:28:45+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-04T15:08:58+03:00",
+ "sourceModified": "2026-09-05T01:28:32+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
@@ -19,7 +19,7 @@
    "id": "2026-09-03-aptitude-test-10:00",
    "sourceRow": 26,
    "course": "Aptitude Test",
-   "coordinator": "Dr. Lutfi",
+   "coordinator": "Lutfi Al-Sharif",
    "dept": "",
    "date": "2026-09-03",
    "day": "Thursday",
@@ -48,7 +48,7 @@
    "id": "2026-09-03-aptitude-test-11:00",
    "sourceRow": 27,
    "course": "Aptitude Test",
-   "coordinator": "Dr. Lutfi",
+   "coordinator": "Lutfi Al-Sharif",
    "dept": "",
    "date": "2026-09-03",
    "day": "Thursday",
@@ -77,7 +77,7 @@
    "id": "2026-09-03-aptitude-test-12:00",
    "sourceRow": 28,
    "course": "Aptitude Test",
-   "coordinator": "Dr. Lutfi",
+   "coordinator": "Lutfi Al-Sharif",
    "dept": "",
    "date": "2026-09-03",
    "day": "Thursday",
@@ -211,7 +211,7 @@
    "id": "2026-09-06-functional-maths-13:30",
    "sourceRow": 32,
    "course": "Functional Maths",
-   "coordinator": "Dr. Lutfi",
+   "coordinator": "Lutfi Al-Sharif",
    "dept": "",
    "date": "2026-09-06",
    "day": "Sunday",
@@ -936,7 +936,7 @@
  "courseIndex": [
   {
    "course": "Aptitude Test",
-   "coordinator": "Dr. Lutfi",
+   "coordinator": "Lutfi Al-Sharif",
    "dept": "",
    "sittings": [
     "2026-09-03-aptitude-test-10:00",
@@ -994,7 +994,7 @@
   },
   {
    "course": "Functional Maths",
-   "coordinator": "Dr. Lutfi",
+   "coordinator": "Lutfi Al-Sharif",
    "dept": "",
    "sittings": [
     "2026-09-06-functional-maths-13:30"
