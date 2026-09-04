@@ -687,7 +687,7 @@
 
   function prettyDay(iso) {
     var d = asDate(iso);
-    return d ? d.getDate() + " " + MON[d.getMonth()] : iso;
+    return d ? WD[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()] : iso;
   }
 
   function viewMine() {
@@ -719,7 +719,7 @@
         DATA.exams.filter(function (e) { return e.course === c.course; }).forEach(function (e) {
           var d = asDate(e.date);
           out.push('<div class="sitting"><div class="head">' +
-            (d ? d.getDate() + " " + MON[d.getMonth()] : "date to come") +
+            (d ? WD[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()] : "date to come") +
             " <span>" + esc(e.time) + "</span></div>");
           var team = (e.assignments || []).map(function (a) {
             var isMe = state.me && a.name === state.me;
