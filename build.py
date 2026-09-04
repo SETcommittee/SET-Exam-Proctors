@@ -138,6 +138,17 @@ def load_exams(wb):
         shortfall = max(0, required - assigned) if required is not None else None
 
         start, end = clean_time(row[5]), clean_time(row[6])
+
+        # Pair each proctor with a room, first-with-first, matching how the
+        # committee writes the printed room list and the Room Plan sheet.
+        room_text = text(row[7])
+        room_list = [x.strip() for x in re.split(r"[,/]", room_text) if x.strip()]
+        assignments = [
+            {"name": p, "room": room_list[i] if i < len(room_list) else ""}
+            for i, p in enumerate(proctors)
+        ]
+        spare_rooms = room_list[len(proctors):]
+
         exams.append(
             {
                 "id": "%s-%s-%s" % (date or "nodate", slug(course), start or "notime"),
@@ -150,7 +161,10 @@ def load_exams(wb):
                 "start": start,
                 "end": end,
                 "time": ("%s - %s" % (start, end)) if start and end else (start or end or "TBC"),
-                "room": text(row[7]) or "TBC",
+                "room": room_text or "TBC",
+                "rooms": room_list,
+                "assignments": assignments,
+                "spareRooms": spare_rooms,
                 "students": number(row[8]),
                 "required": required,
                 "assigned": assigned,

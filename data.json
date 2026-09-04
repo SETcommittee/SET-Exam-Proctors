@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-03T14:35:52+03:00",
+ "generatedAt": "2026-09-04T15:57:57+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-03T14:35:47+03:00",
+ "sourceModified": "2026-09-04T15:08:58+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
@@ -27,6 +27,14 @@
    "end": "11:00",
    "time": "10:00 - 11:00",
    "room": "TBC",
+   "rooms": [],
+   "assignments": [
+    {
+     "name": "Dana Slehat",
+     "room": ""
+    }
+   ],
+   "spareRooms": [],
    "students": 20,
    "required": 1,
    "assigned": 1,
@@ -48,6 +56,14 @@
    "end": "12:00",
    "time": "11:00 - 12:00",
    "room": "TBC",
+   "rooms": [],
+   "assignments": [
+    {
+     "name": "Abedalaziz Milhem",
+     "room": ""
+    }
+   ],
+   "spareRooms": [],
    "students": 20,
    "required": 1,
    "assigned": 1,
@@ -69,6 +85,14 @@
    "end": "13:00",
    "time": "12:00 - 13:00",
    "room": "TBC",
+   "rooms": [],
+   "assignments": [
+    {
+     "name": "Dima Bader",
+     "room": ""
+    }
+   ],
+   "spareRooms": [],
    "students": 20,
    "required": 1,
    "assigned": 1,
@@ -90,6 +114,21 @@
    "end": "16:00",
    "time": "10:00 - 16:00",
    "room": "N-303, N-306",
+   "rooms": [
+    "N-303",
+    "N-306"
+   ],
+   "assignments": [
+    {
+     "name": "Mohammad Raed",
+     "room": "N-303"
+    },
+    {
+     "name": "Mohammad Raed",
+     "room": "N-306"
+    }
+   ],
+   "spareRooms": [],
    "students": 30,
    "required": 2,
    "assigned": 2,
@@ -112,6 +151,16 @@
    "end": "14:00",
    "time": "11:00 - 14:00",
    "room": "N-106",
+   "rooms": [
+    "N-106"
+   ],
+   "assignments": [
+    {
+     "name": "Ala BaniIssa",
+     "room": "N-106"
+    }
+   ],
+   "spareRooms": [],
    "students": 17,
    "required": 1,
    "assigned": 1,
@@ -133,6 +182,21 @@
    "end": "13:00",
    "time": "11:00 - 13:00",
    "room": "N-205, N-203",
+   "rooms": [
+    "N-205",
+    "N-203"
+   ],
+   "assignments": [
+    {
+     "name": "Omar Aldabbas",
+     "room": "N-205"
+    },
+    {
+     "name": "Leen Alhyari",
+     "room": "N-203"
+    }
+   ],
+   "spareRooms": [],
    "students": 25,
    "required": 2,
    "assigned": 2,
@@ -155,6 +219,31 @@
    "end": "15:30",
    "time": "13:30 - 15:30",
    "room": "W-121, W-125, W-128, W-102",
+   "rooms": [
+    "W-121",
+    "W-125",
+    "W-128",
+    "W-102"
+   ],
+   "assignments": [
+    {
+     "name": "Jamal alomari",
+     "room": "W-121"
+    },
+    {
+     "name": "Farah Almemeh",
+     "room": "W-125"
+    },
+    {
+     "name": "Anas Alshoubaki",
+     "room": "W-128"
+    },
+    {
+     "name": "Faris Alsalem",
+     "room": "W-102"
+    }
+   ],
+   "spareRooms": [],
    "students": null,
    "required": 4,
    "assigned": 4,
@@ -179,6 +268,31 @@
    "end": "13:30",
    "time": "11:00 - 13:30",
    "room": "N-301, N-303, N-304, N-306",
+   "rooms": [
+    "N-301",
+    "N-303",
+    "N-304",
+    "N-306"
+   ],
+   "assignments": [
+    {
+     "name": "Lara Khraisat",
+     "room": "N-301"
+    },
+    {
+     "name": "Mohammad alshawabkeh",
+     "room": "N-303"
+    },
+    {
+     "name": "Razan Bader",
+     "room": "N-304"
+    },
+    {
+     "name": "Malak Alghadi",
+     "room": "N-306"
+    }
+   ],
+   "spareRooms": [],
    "students": 75,
    "required": 4,
    "assigned": 4,
@@ -203,6 +317,26 @@
    "end": "16:30",
    "time": "13:30 - 16:30",
    "room": "N-106, N-104, N-103",
+   "rooms": [
+    "N-106",
+    "N-104",
+    "N-103"
+   ],
+   "assignments": [
+    {
+     "name": "Ala BaniIssa",
+     "room": "N-106"
+    },
+    {
+     "name": "Faris Alsalem",
+     "room": "N-104"
+    },
+    {
+     "name": "Sara Alirshedat",
+     "room": "N-103"
+    }
+   ],
+   "spareRooms": [],
    "students": null,
    "required": 3,
    "assigned": 3,
@@ -226,6 +360,21 @@
    "end": "11:00",
    "time": "09:00 - 11:00",
    "room": "N-102, N-104",
+   "rooms": [
+    "N-102",
+    "N-104"
+   ],
+   "assignments": [
+    {
+     "name": "Dima Bader",
+     "room": "N-102"
+    },
+    {
+     "name": "Mohammad Alzubi",
+     "room": "N-104"
+    }
+   ],
+   "spareRooms": [],
    "students": 26,
    "required": 2,
    "assigned": 2,
@@ -248,6 +397,26 @@
    "end": "15:30",
    "time": "13:30 - 15:30",
    "room": "N-301, N-303, N-306",
+   "rooms": [
+    "N-301",
+    "N-303",
+    "N-306"
+   ],
+   "assignments": [
+    {
+     "name": "Omar Aldabbas",
+     "room": "N-301"
+    },
+    {
+     "name": "Huthaifa Alkhashaneh",
+     "room": "N-303"
+    },
+    {
+     "name": "Leen Alhyari",
+     "room": "N-306"
+    }
+   ],
+   "spareRooms": [],
    "students": null,
    "required": 3,
    "assigned": 3,
@@ -271,6 +440,16 @@
    "end": "14:00",
    "time": "11:00 - 14:00",
    "room": "N-106",
+   "rooms": [
+    "N-106"
+   ],
+   "assignments": [
+    {
+     "name": "Jamal alomari",
+     "room": "N-106"
+    }
+   ],
+   "spareRooms": [],
    "students": 7,
    "required": 1,
    "assigned": 1,
@@ -292,6 +471,16 @@
    "end": "14:00",
    "time": "11:00 - 14:00",
    "room": "N-106",
+   "rooms": [
+    "N-106"
+   ],
+   "assignments": [
+    {
+     "name": "Ala BaniIssa",
+     "room": "N-106"
+    }
+   ],
+   "spareRooms": [],
    "students": 13,
    "required": 1,
    "assigned": 1,
@@ -313,6 +502,41 @@
    "end": "13:00",
    "time": "11:00 - 13:00",
    "room": "W-202, W-203, W-216, W-121, W-128, W-125",
+   "rooms": [
+    "W-202",
+    "W-203",
+    "W-216",
+    "W-121",
+    "W-128",
+    "W-125"
+   ],
+   "assignments": [
+    {
+     "name": "Farah Almemeh",
+     "room": "W-202"
+    },
+    {
+     "name": "Aseel Shahin",
+     "room": "W-203"
+    },
+    {
+     "name": "Dana Slehat",
+     "room": "W-216"
+    },
+    {
+     "name": "Lara Khraisat",
+     "room": "W-121"
+    },
+    {
+     "name": "Abedalaziz Milhem",
+     "room": "W-128"
+    },
+    {
+     "name": "Ahmad Samha",
+     "room": "W-125"
+    }
+   ],
+   "spareRooms": [],
    "students": 79,
    "required": 6,
    "assigned": 6,
@@ -339,6 +563,16 @@
    "end": "16:00",
    "time": "13:00 - 16:00",
    "room": "N-301",
+   "rooms": [
+    "N-301"
+   ],
+   "assignments": [
+    {
+     "name": "Razan Bader",
+     "room": "N-301"
+    }
+   ],
+   "spareRooms": [],
    "students": 17,
    "required": 1,
    "assigned": 1,
@@ -360,6 +594,19 @@
    "end": "11:00",
    "time": "09:00 - 11:00",
    "room": "N-101, N-102",
+   "rooms": [
+    "N-101",
+    "N-102"
+   ],
+   "assignments": [
+    {
+     "name": "Sara Alirshedat",
+     "room": "N-101"
+    }
+   ],
+   "spareRooms": [
+    "N-102"
+   ],
    "students": 24,
    "required": 2,
    "assigned": 1,
@@ -381,6 +628,21 @@
    "end": "15:00",
    "time": "12:00 - 15:00",
    "room": "N-205, N-203",
+   "rooms": [
+    "N-205",
+    "N-203"
+   ],
+   "assignments": [
+    {
+     "name": "Mohammad alshawabkeh",
+     "room": "N-205"
+    },
+    {
+     "name": "Anas Alshoubaki",
+     "room": "N-203"
+    }
+   ],
+   "spareRooms": [],
    "students": 26,
    "required": 2,
    "assigned": 2,
@@ -403,6 +665,16 @@
    "end": "17:00",
    "time": "15:00 - 17:00",
    "room": "N-101",
+   "rooms": [
+    "N-101"
+   ],
+   "assignments": [
+    {
+     "name": "Malak Alghadi",
+     "room": "N-101"
+    }
+   ],
+   "spareRooms": [],
    "students": 19,
    "required": 1,
    "assigned": 1,
@@ -424,6 +696,16 @@
    "end": "17:00",
    "time": "15:00 - 17:00",
    "room": "N-104",
+   "rooms": [
+    "N-104"
+   ],
+   "assignments": [
+    {
+     "name": "Nezar AlQudah",
+     "room": "N-104"
+    }
+   ],
+   "spareRooms": [],
    "students": 20,
    "required": 1,
    "assigned": 1,
