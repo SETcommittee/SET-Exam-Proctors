@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-05T13:14:43+03:00",
+ "generatedAt": "2026-09-05T14:21:24+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-05T13:12:32+03:00",
+ "sourceModified": "2026-09-05T14:17:38+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
@@ -386,49 +386,6 @@
    "notes": ""
   },
   {
-   "id": "2026-09-08-electrical-and-electronic-principles-13:30",
-   "sourceRow": 36,
-   "course": "Electrical and Electronic Principles",
-   "coordinator": "Rajaee Nassaer",
-   "dept": "",
-   "date": "2026-09-08",
-   "day": "Tuesday",
-   "start": "13:30",
-   "end": "15:30",
-   "time": "13:30 - 15:30",
-   "room": "N-301, N-303, N-306",
-   "rooms": [
-    "N-301",
-    "N-303",
-    "N-306"
-   ],
-   "assignments": [
-    {
-     "name": "Omar Aldabbas",
-     "room": "N-301"
-    },
-    {
-     "name": "Huthaifa Alkhashaneh",
-     "room": "N-303"
-    },
-    {
-     "name": "Leen Alhyari",
-     "room": "N-306"
-    }
-   ],
-   "spareRooms": [],
-   "students": null,
-   "required": 3,
-   "assigned": 3,
-   "shortfall": 0,
-   "proctors": [
-    "Omar Aldabbas",
-    "Huthaifa Alkhashaneh",
-    "Leen Alhyari"
-   ],
-   "notes": ""
-  },
-  {
    "id": "2026-09-09-modelling-and-simulation-for-engineers-11:00",
    "sourceRow": 38,
    "course": "Modelling and Simulation for Engineers",
@@ -528,11 +485,11 @@
      "room": "W-121"
     },
     {
-     "name": "Abedalaziz Milhem",
+     "name": "Ahmad Samha",
      "room": "W-128"
     },
     {
-     "name": "Ahmad Samha",
+     "name": "Abedalaziz Milhem",
      "room": "W-125"
     }
    ],
@@ -546,8 +503,8 @@
     "Aseel Shahin",
     "Dana Slehat",
     "Lara Khraisat",
-    "Abedalaziz Milhem",
-    "Ahmad Samha"
+    "Ahmad Samha",
+    "Abedalaziz Milhem"
    ],
    "notes": ""
   },
@@ -583,16 +540,16 @@
    "notes": "Special Topics in Electrical Engineering A is the same course"
   },
   {
-   "id": "2026-09-12-introduction-to-ai-and-data-sciences-09:00",
+   "id": "2026-09-12-introduction-to-ai-and-data-sciences-11:00",
    "sourceRow": 42,
    "course": "Introduction to AI and Data Sciences",
    "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
    "dept": "IE",
    "date": "2026-09-12",
    "day": "Saturday",
-   "start": "09:00",
-   "end": "11:00",
-   "time": "09:00 - 11:00",
+   "start": "11:00",
+   "end": "13:00",
+   "time": "11:00 - 13:00",
    "room": "N-101, N-102",
    "rooms": [
     "N-101",
@@ -620,16 +577,16 @@
    "notes": ""
   },
   {
-   "id": "2026-09-12-data-analytics-15:00",
+   "id": "2026-09-12-data-analytics-13:30",
    "sourceRow": 43,
    "course": "Data Analytics",
    "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
    "dept": "IE",
    "date": "2026-09-12",
    "day": "Saturday",
-   "start": "15:00",
-   "end": "17:00",
-   "time": "15:00 - 17:00",
+   "start": "13:30",
+   "end": "15:30",
+   "time": "13:30 - 15:30",
    "room": "N-101, N-102",
    "rooms": [
     "N-101",
@@ -723,6 +680,49 @@
     "Nezar AlQudah"
    ],
    "notes": "Eng. Nezar is the Proctor (2 hrs, time TBC)"
+  },
+  {
+   "id": "z-electrical-and-electronic-principles-13:30",
+   "sourceRow": 36,
+   "course": "Electrical and Electronic Principles",
+   "coordinator": "Rajaee Nassaer",
+   "dept": "",
+   "date": "z",
+   "day": "z",
+   "start": "13:30",
+   "end": "15:30",
+   "time": "13:30 - 15:30",
+   "room": "N-301, N-303, N-306",
+   "rooms": [
+    "N-301",
+    "N-303",
+    "N-306"
+   ],
+   "assignments": [
+    {
+     "name": "Omar Aldabbas",
+     "room": "N-301"
+    },
+    {
+     "name": "Huthaifa Alkhashaneh",
+     "room": "N-303"
+    },
+    {
+     "name": "Leen Alhyari",
+     "room": "N-306"
+    }
+   ],
+   "spareRooms": [],
+   "students": null,
+   "required": 3,
+   "assigned": 3,
+   "shortfall": 0,
+   "proctors": [
+    "Omar Aldabbas",
+    "Huthaifa Alkhashaneh",
+    "Leen Alhyari"
+   ],
+   "notes": ""
   }
  ],
  "proctorIndex": [
@@ -739,7 +739,7 @@
    "name": "Ahmad Samha",
    "duties": [
     "2026-09-10-engineering-science-11:00",
-    "2026-09-12-data-analytics-15:00"
+    "2026-09-12-data-analytics-13:30"
    ],
    "count": 2,
    "onRoster": true
@@ -810,7 +810,7 @@
   {
    "name": "Huthaifa Alkhashaneh",
    "duties": [
-    "2026-09-08-electrical-and-electronic-principles-13:30"
+    "z-electrical-and-electronic-principles-13:30"
    ],
    "count": 1,
    "onRoster": true
@@ -837,7 +837,7 @@
    "name": "Leen Alhyari",
    "duties": [
     "2026-09-06-operations-research-11:00",
-    "2026-09-08-electrical-and-electronic-principles-13:30"
+    "z-electrical-and-electronic-principles-13:30"
    ],
    "count": 2,
    "onRoster": true
@@ -852,7 +852,7 @@
    "name": "Malak Alghadi",
    "duties": [
     "2026-09-07-engineering-math-11:00",
-    "2026-09-12-data-analytics-15:00"
+    "2026-09-12-data-analytics-13:30"
    ],
    "count": 2,
    "onRoster": true
@@ -870,7 +870,7 @@
    "name": "Mohammad Alzubi",
    "duties": [
     "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00",
-    "2026-09-12-introduction-to-ai-and-data-sciences-09:00"
+    "2026-09-12-introduction-to-ai-and-data-sciences-11:00"
    ],
    "count": 2,
    "onRoster": true
@@ -902,7 +902,7 @@
    "name": "Omar Aldabbas",
    "duties": [
     "2026-09-06-operations-research-11:00",
-    "2026-09-08-electrical-and-electronic-principles-13:30"
+    "z-electrical-and-electronic-principles-13:30"
    ],
    "count": 2,
    "onRoster": true
@@ -932,7 +932,7 @@
    "name": "Sara Alirshedat",
    "duties": [
     "2026-09-07-engineering-design-13:30",
-    "2026-09-12-introduction-to-ai-and-data-sciences-09:00"
+    "2026-09-12-introduction-to-ai-and-data-sciences-11:00"
    ],
    "count": 2,
    "onRoster": true
@@ -960,7 +960,7 @@
    "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
    "dept": "IE",
    "sittings": [
-    "2026-09-12-data-analytics-15:00"
+    "2026-09-12-data-analytics-13:30"
    ]
   },
   {
@@ -968,7 +968,7 @@
    "coordinator": "Rajaee Nassaer",
    "dept": "",
    "sittings": [
-    "2026-09-08-electrical-and-electronic-principles-13:30"
+    "z-electrical-and-electronic-principles-13:30"
    ]
   },
   {
@@ -1048,7 +1048,7 @@
    "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
    "dept": "IE",
    "sittings": [
-    "2026-09-12-introduction-to-ai-and-data-sciences-09:00"
+    "2026-09-12-introduction-to-ai-and-data-sciences-11:00"
    ]
   },
   {
