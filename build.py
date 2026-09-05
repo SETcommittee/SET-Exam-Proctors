@@ -115,7 +115,7 @@ def load_roster(wb):
 
 
 def load_exams(wb):
-    exams, skipped = [], 0
+    exams, skipped, bad_dates = [], 0, []
     for idx, row in enumerate(
         wb["Exam"].iter_rows(min_row=FIRST_DATA_ROW, values_only=True), start=FIRST_DATA_ROW
     ):
@@ -124,6 +124,13 @@ def load_exams(wb):
             continue
 
         date = text(row[3])
+
+        # A typo in the Date cell used to reach the page as-is and break every
+        # view. Anything that is not a real date is dropped here and reported.
+        if date and not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+            bad_dates.append((idx, course, date))
+            date = ""
+
         if date and date < WINDOW_START:
             skipped += 1
             continue
@@ -175,7 +182,7 @@ def load_exams(wb):
         )
 
     exams.sort(key=lambda e: (e["date"] or "9999", e["start"] or "99:99", e["course"]))
-    return exams, skipped
+    return exams, skipped, bad_dates
 
 
 def proctor_index(exams, roster):
@@ -273,7 +280,7 @@ def main():
         sys.exit("Source workbook not found:\n  %s" % src)
 
     wb = open_workbook(src)
-    exams, skipped = load_exams(wb)
+    exams, skipped, bad_dates = load_exams(wb)
     roster = load_roster(wb)
     short = [e for e in exams if e["shortfall"]]
 
@@ -322,6 +329,10 @@ def main():
         print("SHORT      : none - every exam is fully proctored")
     if s["examsWithoutTarget"]:
         print("NOTE       : %d exam(s) have no '# of Proctors' target set" % s["examsWithoutTarget"])
+    if bad_dates:
+        print("BAD DATES  : %d row(s) - fix these in the Exam sheet" % len(bad_dates))
+        for r, course, raw in bad_dates:
+            print("   row %-4d %-44s Date cell reads %r" % (r, course[:44], raw))
     print("Wrote      : data.json, index.html, artifact.html")
 
 

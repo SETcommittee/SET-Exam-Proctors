@@ -417,10 +417,15 @@
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
     });
   }
+  // Returns null for anything that is not a real yyyy-mm-dd. Splitting on "-"
+  // alone is not enough: "not-a-date" also has three parts and would hand back
+  // an Invalid Date, which is truthy and slips past every later guard.
   function asDate(iso) {
     if (!iso) return null;
-    var p = String(iso).split("-");
-    return p.length === 3 ? new Date(+p[0], +p[1] - 1, +p[2]) : null;
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(iso));
+    if (!m) return null;
+    var d = new Date(+m[1], +m[2] - 1, +m[3]);
+    return isNaN(d.getTime()) ? null : d;
   }
   function past(e) { var d = asDate(e.date); return d ? d < TODAY : false; }
   function dayGap(iso) { var d = asDate(iso); return d ? Math.round((d - TODAY) / 86400000) : null; }
@@ -587,9 +592,9 @@
         var d = asDate(e.date), w = whenWord(e.date);
         out.push('<div class="day' + (dayGap(e.date) === 0 ? " is-today" : "") + '">' +
           '<div class="day-mark">' +
-            '<span class="num">' + (d ? d.getDate() : "?") + "</span>" +
-            '<span class="mon">' + (d ? MON[d.getMonth()] : "") + "</span>" +
-            '<span class="wd">' + (d ? WD[d.getDay()] : esc(e.day || "")) + "</span>" +
+            '<span class="num">' + (d ? d.getDate() : "—") + "</span>" +
+            '<span class="mon">' + (d ? MON[d.getMonth()] : "Date not set") + "</span>" +
+            '<span class="wd">' + (d ? WD[d.getDay()] : "") + "</span>" +
             (w ? '<span class="when">' + w + "</span>" : "") +
           "</div>");
       }
@@ -604,7 +609,7 @@
   var DATES = (function () {
     var seen = {}, out = [];
     DATA.exams.forEach(function (e) {
-      if (e.date && !seen[e.date]) { seen[e.date] = 1; out.push(e.date); }
+      if (e.date && asDate(e.date) && !seen[e.date]) { seen[e.date] = 1; out.push(e.date); }
     });
     return out.sort();
   })();
@@ -847,9 +852,15 @@
 
   /* ---------- start ---------- */
   (function setSpan() {
-    var ds = DATA.exams.map(function (e) { return e.date; }).filter(Boolean).sort();
+    // Only dates that actually parse. A stray character in one Date cell once
+    // took the whole page down here, so nothing downstream trusts this input.
+    var ds = DATA.exams
+      .map(function (e) { return e.date; })
+      .filter(function (d) { return asDate(d); })
+      .sort();
     if (!ds.length) return;
     var a = asDate(ds[0]), b = asDate(ds[ds.length - 1]);
+    if (!a || !b) return;
     document.getElementById("span").textContent =
       a.getDate() + " " + MON[a.getMonth()] + " – " + b.getDate() + " " +
       MON[b.getMonth()] + " " + b.getFullYear();

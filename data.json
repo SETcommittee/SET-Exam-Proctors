@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-05T14:21:24+03:00",
+ "generatedAt": "2026-09-05T14:29:19+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-05T14:17:38+03:00",
+ "sourceModified": "2026-09-05T14:27:33+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
@@ -386,6 +386,49 @@
    "notes": ""
   },
   {
+   "id": "2026-09-08-electrical-and-electronic-principles-13:30",
+   "sourceRow": 36,
+   "course": "Electrical and Electronic Principles",
+   "coordinator": "Rajaee Nassaer",
+   "dept": "",
+   "date": "2026-09-08",
+   "day": "Tuesday",
+   "start": "13:30",
+   "end": "15:30",
+   "time": "13:30 - 15:30",
+   "room": "N-301, N-303, N-306",
+   "rooms": [
+    "N-301",
+    "N-303",
+    "N-306"
+   ],
+   "assignments": [
+    {
+     "name": "Omar Aldabbas",
+     "room": "N-301"
+    },
+    {
+     "name": "Huthaifa Alkhashaneh",
+     "room": "N-303"
+    },
+    {
+     "name": "Leen Alhyari",
+     "room": "N-306"
+    }
+   ],
+   "spareRooms": [],
+   "students": null,
+   "required": 3,
+   "assigned": 3,
+   "shortfall": 0,
+   "proctors": [
+    "Omar Aldabbas",
+    "Huthaifa Alkhashaneh",
+    "Leen Alhyari"
+   ],
+   "notes": ""
+  },
+  {
    "id": "2026-09-09-modelling-and-simulation-for-engineers-11:00",
    "sourceRow": 38,
    "course": "Modelling and Simulation for Engineers",
@@ -680,49 +723,6 @@
     "Nezar AlQudah"
    ],
    "notes": "Eng. Nezar is the Proctor (2 hrs, time TBC)"
-  },
-  {
-   "id": "z-electrical-and-electronic-principles-13:30",
-   "sourceRow": 36,
-   "course": "Electrical and Electronic Principles",
-   "coordinator": "Rajaee Nassaer",
-   "dept": "",
-   "date": "z",
-   "day": "z",
-   "start": "13:30",
-   "end": "15:30",
-   "time": "13:30 - 15:30",
-   "room": "N-301, N-303, N-306",
-   "rooms": [
-    "N-301",
-    "N-303",
-    "N-306"
-   ],
-   "assignments": [
-    {
-     "name": "Omar Aldabbas",
-     "room": "N-301"
-    },
-    {
-     "name": "Huthaifa Alkhashaneh",
-     "room": "N-303"
-    },
-    {
-     "name": "Leen Alhyari",
-     "room": "N-306"
-    }
-   ],
-   "spareRooms": [],
-   "students": null,
-   "required": 3,
-   "assigned": 3,
-   "shortfall": 0,
-   "proctors": [
-    "Omar Aldabbas",
-    "Huthaifa Alkhashaneh",
-    "Leen Alhyari"
-   ],
-   "notes": ""
   }
  ],
  "proctorIndex": [
@@ -810,7 +810,7 @@
   {
    "name": "Huthaifa Alkhashaneh",
    "duties": [
-    "z-electrical-and-electronic-principles-13:30"
+    "2026-09-08-electrical-and-electronic-principles-13:30"
    ],
    "count": 1,
    "onRoster": true
@@ -837,7 +837,7 @@
    "name": "Leen Alhyari",
    "duties": [
     "2026-09-06-operations-research-11:00",
-    "z-electrical-and-electronic-principles-13:30"
+    "2026-09-08-electrical-and-electronic-principles-13:30"
    ],
    "count": 2,
    "onRoster": true
@@ -902,7 +902,7 @@
    "name": "Omar Aldabbas",
    "duties": [
     "2026-09-06-operations-research-11:00",
-    "z-electrical-and-electronic-principles-13:30"
+    "2026-09-08-electrical-and-electronic-principles-13:30"
    ],
    "count": 2,
    "onRoster": true
@@ -968,7 +968,7 @@
    "coordinator": "Rajaee Nassaer",
    "dept": "",
    "sittings": [
-    "z-electrical-and-electronic-principles-13:30"
+    "2026-09-08-electrical-and-electronic-principles-13:30"
    ]
   },
   {
