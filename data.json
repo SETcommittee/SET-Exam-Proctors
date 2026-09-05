@@ -1,15 +1,15 @@
 {
- "generatedAt": "2026-09-05T01:28:45+03:00",
+ "generatedAt": "2026-09-05T13:14:43+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-05T01:28:32+03:00",
+ "sourceModified": "2026-09-05T13:12:32+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
-  "totalStudents": 438,
-  "seatsRequired": 39,
-  "seatsAssigned": 38,
-  "examsShort": 1,
-  "seatsShort": 1,
+  "totalStudents": 443,
+  "seatsRequired": 40,
+  "seatsAssigned": 40,
+  "examsShort": 0,
+  "seatsShort": 0,
   "examsWithoutTarget": 0,
   "proctors": 21,
   "rosterSize": 26
@@ -583,13 +583,13 @@
    "notes": "Special Topics in Electrical Engineering A is the same course"
   },
   {
-   "id": "2026-09-13-introduction-to-ai-and-data-sciences-09:00",
+   "id": "2026-09-12-introduction-to-ai-and-data-sciences-09:00",
    "sourceRow": 42,
    "course": "Introduction to AI and Data Sciences",
    "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
    "dept": "IE",
-   "date": "2026-09-13",
-   "day": "Sunday",
+   "date": "2026-09-12",
+   "day": "Saturday",
    "start": "09:00",
    "end": "11:00",
    "time": "09:00 - 11:00",
@@ -602,19 +602,59 @@
     {
      "name": "Sara Alirshedat",
      "room": "N-101"
+    },
+    {
+     "name": "Mohammad Alzubi",
+     "room": "N-102"
     }
    ],
-   "spareRooms": [
-    "N-102"
-   ],
+   "spareRooms": [],
    "students": 24,
    "required": 2,
-   "assigned": 1,
-   "shortfall": 1,
+   "assigned": 2,
+   "shortfall": 0,
    "proctors": [
-    "Sara Alirshedat"
+    "Sara Alirshedat",
+    "Mohammad Alzubi"
    ],
    "notes": ""
+  },
+  {
+   "id": "2026-09-12-data-analytics-15:00",
+   "sourceRow": 43,
+   "course": "Data Analytics",
+   "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
+   "dept": "IE",
+   "date": "2026-09-12",
+   "day": "Saturday",
+   "start": "15:00",
+   "end": "17:00",
+   "time": "15:00 - 17:00",
+   "room": "N-101, N-102",
+   "rooms": [
+    "N-101",
+    "N-102"
+   ],
+   "assignments": [
+    {
+     "name": "Malak Alghadi",
+     "room": "N-101"
+    },
+    {
+     "name": "Ahmad Samha",
+     "room": "N-102"
+    }
+   ],
+   "spareRooms": [],
+   "students": 24,
+   "required": 2,
+   "assigned": 2,
+   "shortfall": 0,
+   "proctors": [
+    "Malak Alghadi",
+    "Ahmad Samha"
+   ],
+   "notes": "Special Topics in Electrical Engineering C (5 students) is the same course"
   },
   {
    "id": "2026-09-13-industrial-power-electronics-and-storage-12:00",
@@ -652,37 +692,6 @@
     "Anas Alshoubaki"
    ],
    "notes": ""
-  },
-  {
-   "id": "2026-09-13-data-analytics-15:00",
-   "sourceRow": 43,
-   "course": "Data Analytics",
-   "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
-   "dept": "IE",
-   "date": "2026-09-13",
-   "day": "Sunday",
-   "start": "15:00",
-   "end": "17:00",
-   "time": "15:00 - 17:00",
-   "room": "N-101",
-   "rooms": [
-    "N-101"
-   ],
-   "assignments": [
-    {
-     "name": "Malak Alghadi",
-     "room": "N-101"
-    }
-   ],
-   "spareRooms": [],
-   "students": 19,
-   "required": 1,
-   "assigned": 1,
-   "shortfall": 0,
-   "proctors": [
-    "Malak Alghadi"
-   ],
-   "notes": "Special Topics in Electrical Engineering C (5 students) is the same course"
   },
   {
    "id": "2026-09-13-further-thermodynamics-15:00",
@@ -729,9 +738,10 @@
   {
    "name": "Ahmad Samha",
    "duties": [
-    "2026-09-10-engineering-science-11:00"
+    "2026-09-10-engineering-science-11:00",
+    "2026-09-12-data-analytics-15:00"
    ],
-   "count": 1,
+   "count": 2,
    "onRoster": true
   },
   {
@@ -842,7 +852,7 @@
    "name": "Malak Alghadi",
    "duties": [
     "2026-09-07-engineering-math-11:00",
-    "2026-09-13-data-analytics-15:00"
+    "2026-09-12-data-analytics-15:00"
    ],
    "count": 2,
    "onRoster": true
@@ -859,9 +869,10 @@
   {
    "name": "Mohammad Alzubi",
    "duties": [
-    "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00"
+    "2026-09-08-fundamentals-of-thermodynamics-and-heat-engines-09:00",
+    "2026-09-12-introduction-to-ai-and-data-sciences-09:00"
    ],
-   "count": 1,
+   "count": 2,
    "onRoster": true
   },
   {
@@ -921,7 +932,7 @@
    "name": "Sara Alirshedat",
    "duties": [
     "2026-09-07-engineering-design-13:30",
-    "2026-09-13-introduction-to-ai-and-data-sciences-09:00"
+    "2026-09-12-introduction-to-ai-and-data-sciences-09:00"
    ],
    "count": 2,
    "onRoster": true
@@ -949,7 +960,7 @@
    "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
    "dept": "IE",
    "sittings": [
-    "2026-09-13-data-analytics-15:00"
+    "2026-09-12-data-analytics-15:00"
    ]
   },
   {
@@ -1037,7 +1048,7 @@
    "coordinator": "Ahmad Yousef Sulaiman Abu Sleem",
    "dept": "IE",
    "sittings": [
-    "2026-09-13-introduction-to-ai-and-data-sciences-09:00"
+    "2026-09-12-introduction-to-ai-and-data-sciences-09:00"
    ]
   },
   {
