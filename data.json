@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-06T16:13:36+03:00",
+ "generatedAt": "2026-09-06T22:09:19+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-06T16:07:05+03:00",
+ "sourceModified": "2026-09-06T16:14:17+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
@@ -620,16 +620,16 @@
    "notes": ""
   },
   {
-   "id": "2026-09-12-industrial-power-electronics-and-storage-12:00",
+   "id": "2026-09-12-industrial-power-electronics-and-storage-13:00",
    "sourceRow": 41,
    "course": "Industrial Power, Electronics and Storage",
    "coordinator": "Khaled Ahmad Mahmoud Alza'areer",
    "dept": "EE",
    "date": "2026-09-12",
    "day": "Saturday",
-   "start": "12:00",
-   "end": "15:00",
-   "time": "12:00 - 15:00",
+   "start": "13:00",
+   "end": "16:00",
+   "time": "13:00 - 16:00",
    "room": "N-205, N-203",
    "rooms": [
     "N-205",
@@ -758,7 +758,7 @@
    "name": "Anas Alshoubaki",
    "duties": [
     "2026-09-06-functional-maths-13:30",
-    "2026-09-12-industrial-power-electronics-and-storage-12:00"
+    "2026-09-12-industrial-power-electronics-and-storage-13:00"
    ],
    "count": 2,
    "onRoster": true
@@ -861,7 +861,7 @@
    "name": "Mohammad alshawabkeh",
    "duties": [
     "2026-09-07-engineering-math-11:00",
-    "2026-09-12-industrial-power-electronics-and-storage-12:00"
+    "2026-09-12-industrial-power-electronics-and-storage-13:00"
    ],
    "count": 2,
    "onRoster": true
@@ -1040,7 +1040,7 @@
    "coordinator": "Khaled Ahmad Mahmoud Alza'areer",
    "dept": "EE",
    "sittings": [
-    "2026-09-12-industrial-power-electronics-and-storage-12:00"
+    "2026-09-12-industrial-power-electronics-and-storage-13:00"
    ]
   },
   {
