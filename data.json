@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-06T13:06:59+03:00",
+ "generatedAt": "2026-09-06T16:13:36+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-06T12:20:04+03:00",
+ "sourceModified": "2026-09-06T16:07:05+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 19,
@@ -192,7 +192,7 @@
      "room": "N-205"
     },
     {
-     "name": "Leen Alhyari",
+     "name": "Lara Khraisat",
      "room": "N-203"
     }
    ],
@@ -203,7 +203,7 @@
    "shortfall": 0,
    "proctors": [
     "Omar Aldabbas",
-    "Leen Alhyari"
+    "Lara Khraisat"
    ],
    "notes": ""
   },
@@ -620,6 +620,43 @@
    "notes": ""
   },
   {
+   "id": "2026-09-12-industrial-power-electronics-and-storage-12:00",
+   "sourceRow": 41,
+   "course": "Industrial Power, Electronics and Storage",
+   "coordinator": "Khaled Ahmad Mahmoud Alza'areer",
+   "dept": "EE",
+   "date": "2026-09-12",
+   "day": "Saturday",
+   "start": "12:00",
+   "end": "15:00",
+   "time": "12:00 - 15:00",
+   "room": "N-205, N-203",
+   "rooms": [
+    "N-205",
+    "N-203"
+   ],
+   "assignments": [
+    {
+     "name": "Mohammad alshawabkeh",
+     "room": "N-205"
+    },
+    {
+     "name": "Anas Alshoubaki",
+     "room": "N-203"
+    }
+   ],
+   "spareRooms": [],
+   "students": 26,
+   "required": 2,
+   "assigned": 2,
+   "shortfall": 0,
+   "proctors": [
+    "Mohammad alshawabkeh",
+    "Anas Alshoubaki"
+   ],
+   "notes": ""
+  },
+  {
    "id": "2026-09-12-data-analytics-13:30",
    "sourceRow": 43,
    "course": "Data Analytics",
@@ -655,43 +692,6 @@
     "Ahmad Samha"
    ],
    "notes": "Special Topics in Electrical Engineering C (5 students) is the same course"
-  },
-  {
-   "id": "2026-09-13-industrial-power-electronics-and-storage-12:00",
-   "sourceRow": 41,
-   "course": "Industrial Power, Electronics and Storage",
-   "coordinator": "Khaled Ahmad Mahmoud Alza'areer",
-   "dept": "EE",
-   "date": "2026-09-13",
-   "day": "Sunday",
-   "start": "12:00",
-   "end": "15:00",
-   "time": "12:00 - 15:00",
-   "room": "N-205, N-203",
-   "rooms": [
-    "N-205",
-    "N-203"
-   ],
-   "assignments": [
-    {
-     "name": "Mohammad alshawabkeh",
-     "room": "N-205"
-    },
-    {
-     "name": "Anas Alshoubaki",
-     "room": "N-203"
-    }
-   ],
-   "spareRooms": [],
-   "students": 26,
-   "required": 2,
-   "assigned": 2,
-   "shortfall": 0,
-   "proctors": [
-    "Mohammad alshawabkeh",
-    "Anas Alshoubaki"
-   ],
-   "notes": ""
   },
   {
    "id": "2026-09-13-further-thermodynamics-15:00",
@@ -758,7 +758,7 @@
    "name": "Anas Alshoubaki",
    "duties": [
     "2026-09-06-functional-maths-13:30",
-    "2026-09-13-industrial-power-electronics-and-storage-12:00"
+    "2026-09-12-industrial-power-electronics-and-storage-12:00"
    ],
    "count": 2,
    "onRoster": true
@@ -827,19 +827,19 @@
   {
    "name": "Lara Khraisat",
    "duties": [
+    "2026-09-06-operations-research-11:00",
     "2026-09-07-engineering-math-11:00",
     "2026-09-10-engineering-science-11:00"
    ],
-   "count": 2,
+   "count": 3,
    "onRoster": true
   },
   {
    "name": "Leen Alhyari",
    "duties": [
-    "2026-09-06-operations-research-11:00",
     "2026-09-08-electrical-and-electronic-principles-13:30"
    ],
-   "count": 2,
+   "count": 1,
    "onRoster": true
   },
   {
@@ -861,7 +861,7 @@
    "name": "Mohammad alshawabkeh",
    "duties": [
     "2026-09-07-engineering-math-11:00",
-    "2026-09-13-industrial-power-electronics-and-storage-12:00"
+    "2026-09-12-industrial-power-electronics-and-storage-12:00"
    ],
    "count": 2,
    "onRoster": true
@@ -1040,7 +1040,7 @@
    "coordinator": "Khaled Ahmad Mahmoud Alza'areer",
    "dept": "EE",
    "sittings": [
-    "2026-09-13-industrial-power-electronics-and-storage-12:00"
+    "2026-09-12-industrial-power-electronics-and-storage-12:00"
    ]
   },
   {
