@@ -1,13 +1,13 @@
 {
- "generatedAt": "2026-09-08T00:30:55+03:00",
+ "generatedAt": "2026-09-09T11:29:51+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-06T23:13:53+03:00",
+ "sourceModified": "2026-09-09T11:29:35+03:00",
  "windowStart": "2026-09-03",
  "summary": {
-  "exams": 19,
-  "totalStudents": 443,
-  "seatsRequired": 40,
-  "seatsAssigned": 40,
+  "exams": 20,
+  "totalStudents": 468,
+  "seatsRequired": 42,
+  "seatsAssigned": 42,
   "examsShort": 0,
   "seatsShort": 0,
   "examsWithoutTarget": 0,
@@ -637,7 +637,7 @@
    ],
    "assignments": [
     {
-     "name": "Mohammad alshawabkeh",
+     "name": "Leen Alhyari",
      "room": "N-205"
     },
     {
@@ -651,7 +651,7 @@
    "assigned": 2,
    "shortfall": 0,
    "proctors": [
-    "Mohammad alshawabkeh",
+    "Leen Alhyari",
     "Anas Alshoubaki"
    ],
    "notes": ""
@@ -723,6 +723,43 @@
     "Nezar AlQudah"
    ],
    "notes": "Eng. Nezar is the Proctor (2 hrs, time TBC)"
+  },
+  {
+   "id": "2026-09-21-electrical-and-electronic-principles-re-submission-10:00",
+   "sourceRow": 45,
+   "course": "Electrical and Electronic Principles (Re-Submission)",
+   "coordinator": "Rajaee Nassaer",
+   "dept": "EE",
+   "date": "2026-09-21",
+   "day": "Monday",
+   "start": "10:00",
+   "end": "11:00",
+   "time": "10:00 - 11:00",
+   "room": "N-301, N-303",
+   "rooms": [
+    "N-301",
+    "N-303"
+   ],
+   "assignments": [
+    {
+     "name": "Leen Alhyari",
+     "room": "N-301"
+    },
+    {
+     "name": "Aseel Shahin",
+     "room": "N-303"
+    }
+   ],
+   "spareRooms": [],
+   "students": 25,
+   "required": 2,
+   "assigned": 2,
+   "shortfall": 0,
+   "proctors": [
+    "Leen Alhyari",
+    "Aseel Shahin"
+   ],
+   "notes": "Eng. Nezar is the Proctor (2 hrs, time TBC)"
   }
  ],
  "proctorIndex": [
@@ -766,9 +803,10 @@
   {
    "name": "Aseel Shahin",
    "duties": [
-    "2026-09-10-engineering-science-11:00"
+    "2026-09-10-engineering-science-11:00",
+    "2026-09-21-electrical-and-electronic-principles-re-submission-10:00"
    ],
-   "count": 1,
+   "count": 2,
    "onRoster": true
   },
   {
@@ -837,9 +875,11 @@
   {
    "name": "Leen Alhyari",
    "duties": [
-    "2026-09-08-electrical-and-electronic-principles-13:30"
+    "2026-09-08-electrical-and-electronic-principles-13:30",
+    "2026-09-12-industrial-power-electronics-and-storage-13:00",
+    "2026-09-21-electrical-and-electronic-principles-re-submission-10:00"
    ],
-   "count": 1,
+   "count": 3,
    "onRoster": true
   },
   {
@@ -860,10 +900,9 @@
   {
    "name": "Mohammad alshawabkeh",
    "duties": [
-    "2026-09-07-engineering-math-11:00",
-    "2026-09-12-industrial-power-electronics-and-storage-13:00"
+    "2026-09-07-engineering-math-11:00"
    ],
-   "count": 2,
+   "count": 1,
    "onRoster": true
   },
   {
@@ -969,6 +1008,14 @@
    "dept": "",
    "sittings": [
     "2026-09-08-electrical-and-electronic-principles-13:30"
+   ]
+  },
+  {
+   "course": "Electrical and Electronic Principles (Re-Submission)",
+   "coordinator": "Rajaee Nassaer",
+   "dept": "EE",
+   "sittings": [
+    "2026-09-21-electrical-and-electronic-principles-re-submission-10:00"
    ]
   },
   {
