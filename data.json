@@ -1,7 +1,7 @@
 {
- "generatedAt": "2026-09-12T00:45:05+03:00",
+ "generatedAt": "2026-09-12T09:44:39+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-09T11:31:04+03:00",
+ "sourceModified": "2026-09-12T00:46:00+03:00",
  "windowStart": "2026-09-03",
  "summary": {
   "exams": 20,
@@ -637,7 +637,7 @@
    ],
    "assignments": [
     {
-     "name": "Leen Alhyari",
+     "name": "Faris Alsalem",
      "room": "N-205"
     },
     {
@@ -651,7 +651,7 @@
    "assigned": 2,
    "shortfall": 0,
    "proctors": [
-    "Leen Alhyari",
+    "Faris Alsalem",
     "Anas Alshoubaki"
    ],
    "notes": ""
@@ -840,9 +840,10 @@
    "name": "Faris Alsalem",
    "duties": [
     "2026-09-06-functional-maths-13:30",
-    "2026-09-07-engineering-design-13:30"
+    "2026-09-07-engineering-design-13:30",
+    "2026-09-12-industrial-power-electronics-and-storage-13:00"
    ],
-   "count": 2,
+   "count": 3,
    "onRoster": true
   },
   {
@@ -876,10 +877,9 @@
    "name": "Leen Alhyari",
    "duties": [
     "2026-09-08-electrical-and-electronic-principles-13:30",
-    "2026-09-12-industrial-power-electronics-and-storage-13:00",
     "2026-09-21-electrical-and-electronic-principles-re-submission-10:00"
    ],
-   "count": 3,
+   "count": 2,
    "onRoster": true
   },
   {
