@@ -40,6 +40,9 @@ confirm it behaves in practice.
 - [NEEDS VERIFICATION] The new **Assignments** sheet and the sent flags are
   installed and tested against a copy and the live workbook, but no email has
   actually been sent through either sheet yet.
+- Note: `_SentLog` **does not exist in the workbook yet**. It is created the
+  first time a list is refreshed or an email sent. Its absence is normal, not
+  a failed installation.
 
 ## Not Started
 
@@ -69,8 +72,10 @@ confirm it behaves in practice.
 
 ## Recent Important Changes
 
-- 2026-09-12 — added the Assignments sheet, the `_SentLog` ledger and the
-  Sent/Due columns. Fixed a latent bug where refreshing wiped the sent log.
+- 2026-09-12 11:57 — added the Assignments sheet, the `_SentLog` ledger and
+  the Sent/Due columns. Fixed a latent bug where refreshing wiped the sent log.
+- 2026-09-12 00:45 and 09:44 — two routine `sync.cmd` refreshes by the
+  committee. The live site is current as of 09:44, 20 exams, 42/42 seats.
 - 2026-09-09 — latest data refresh by the committee; 20 exams, 42/42 seats.
 - 2026-09-05 — fixed a crash where one bad Date cell (`z` in row 36) blanked
   the entire site; hardened both the date parser and `build.py`.

@@ -41,7 +41,13 @@ Statuses: CONFIRMED · IN PROGRESS · COMPLETED · TBD · REJECTED
 | R-09 | One row per proctor with their room | Medium | COMPLETED | `Room Plan` sheet, rebuildable |
 | R-10 | Flag anyone with no address | High | COMPLETED | Red column on `Reminders` |
 | R-11 | Send all upcoming reminders at once | Low | COMPLETED | [NEEDS VERIFICATION] never run in bulk |
-| R-12 | One email per proctor, personally addressed | Low | TBD | Offered 2026-09-03, not taken up |
+| R-12 | One email per proctor, personally addressed | Low | REJECTED | Per-exam chosen instead, 2026-09-12 (DECISION-012) |
+| R-13 | Tell proctors once, when they are assigned | High | COMPLETED | `Assignments` sheet, separate wording |
+| R-14 | Remember which emails have already gone out | High | COMPLETED | Hidden `_SentLog`, survives a rebuild (DECISION-011) |
+| R-15 | Flag reminders due within two days | High | COMPLETED | `Due` column; `REMIND_DAYS_BEFORE` = 2 |
+| R-16 | Undo a sent flag so one email can be resent | Medium | COMPLETED | "Clear sent flag" button |
+| R-17 | Send every email that is currently due, in one go | Medium | COMPLETED | [NEEDS VERIFICATION] never run |
+| R-18 | Send reminders automatically, unattended | Low | REJECTED | Committee prefers to click and see what goes out |
 
 ## Data
 

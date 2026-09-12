@@ -56,6 +56,11 @@ Installed on a copy first, then on the live workbook.
 Send one assignment email to a single exam to confirm the flag sets in
 practice, before using "Send all not yet sent".
 
+## Also today
+
+Two routine `sync.cmd` refreshes by the committee, at 00:45 and 09:44. The
+published site is current: 20 exams, 42/42 seats.
+
 ---
 
 # 2026-09-12
