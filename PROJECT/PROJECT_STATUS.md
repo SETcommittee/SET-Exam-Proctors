@@ -13,8 +13,9 @@ the committee is refreshing it from Excel as assignments change.
 
 ## Current Objective
 
-Keep the published schedule accurate until the exam period ends, with no
-interruption to staff. No new features are in flight.
+Keep the published schedule accurate until the exam period ends. The email
+side has just gained a second message type, which needs one real send to
+confirm it behaves in practice.
 
 ## Completed
 
@@ -31,10 +32,14 @@ interruption to staff. No new features are in flight.
 - [COMPLETED] One-click `sync.cmd` refresh; the committee has run it ~15 times
   unaided since 3 September.
 - [COMPLETED] Bad-date crash fixed and hardened at two layers.
+- [COMPLETED] Assignment emails on their own sheet, plus a durable sent flag
+  for both kinds, held in a hidden `_SentLog` ledger.
 
 ## In Progress
 
-- Nothing actively under development.
+- [NEEDS VERIFICATION] The new **Assignments** sheet and the sent flags are
+  installed and tested against a copy and the live workbook, but no email has
+  actually been sent through either sheet yet.
 
 ## Not Started
 
@@ -64,6 +69,8 @@ interruption to staff. No new features are in flight.
 
 ## Recent Important Changes
 
+- 2026-09-12 — added the Assignments sheet, the `_SentLog` ledger and the
+  Sent/Due columns. Fixed a latent bug where refreshing wiped the sent log.
 - 2026-09-09 — latest data refresh by the committee; 20 exams, 42/42 seats.
 - 2026-09-05 — fixed a crash where one bad Date cell (`z` in row 36) blanked
   the entire site; hardened both the date parser and `build.py`.
@@ -75,17 +82,15 @@ interruption to staff. No new features are in flight.
 
 ## Current Files/Components Being Worked On
 
-- None. Last touched: `template.html`, `build.py` (2026-09-05).
+- `vba/mReminders.bas`, `vba/Assignments_sheet.bas`, `vba/update_vba.py`
+  (2026-09-12). Website files untouched since 2026-09-05.
 
 ## Next Recommended Task
 
-Ask the user whether they want any of the **High Priority** items in `TODO.md`
-before the exam period ends on 21 September. If not, the project needs nothing
-except routine `sync.cmd` refreshes.
-
-The single highest-value item if they do want work: restore the freshness
-stamp, since its absence is a regression and staff cannot currently tell
-whether they are looking at a stale page.
+Send **one** assignment email, for a single exam, and confirm the Sent flag
+appears and survives a Refresh. That is the only part of the new work not yet
+proven in practice. Only then use "Send all not yet sent", which would email
+every upcoming exam at once.
 
 ## Verification Status
 
@@ -106,7 +111,9 @@ whether they are looking at a stale page.
 - [NEEDS VERIFICATION] A real reminder **send** (`.Send`). Only the `.Display`
   preview path has been exercised, deliberately — testing a send would email
   real colleagues.
-- [NEEDS VERIFICATION] `SendAllUpcoming` in bulk.
+- [NEEDS VERIFICATION] `SendAllUpcoming`, `SendDueReminders` and
+  `SendDueAssignments` in bulk - none has been run.
+- [NEEDS VERIFICATION] The assignment email has never actually been sent.
 - [NEEDS VERIFICATION] Behaviour on browsers other than the Chromium-based
   preview pane.
 

@@ -9,6 +9,11 @@ routine use. These are open items and offers the user has not taken up.
 
 # High Priority
 
+- [ ] **T-00 — Send one assignment email as a live test.**
+  Everything about the new sheet is verified except an actual send. Do one
+  exam, check the Sent flag appears, press Refresh, check it is still there.
+  *Until this is done, avoid "Send all not yet sent".*
+
 - [ ] **T-01 — Add the three missing coordinator addresses.**
   `Dr. Lutfi`, `Rami Hammad`, `Razan Fayez Mahmoud Shatnawi`. They are not in
   the committee's `emails.xlsx`, so they cannot be found automatically.
@@ -69,8 +74,9 @@ fixed and hardened on 2026-09-05 (DECISION-009).
   order.** The positional pairing (DECISION-005) is a convention nothing
   enforces; if the committee ever reorders one list, every view is silently
   wrong.
-- [ ] **T-16 — Verify a real reminder send.** Only the preview path has been
-  exercised, deliberately, since a test send would email real colleagues.
+- [ ] **T-16 — Verify a real send**, for either email type. Only the preview
+  path has been exercised, deliberately, since a test send would email real
+  colleagues. See T-00.
 
 # User Decisions Required
 

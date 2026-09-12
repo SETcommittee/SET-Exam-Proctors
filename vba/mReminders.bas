@@ -1,9 +1,19 @@
 Option Explicit
 
 ' ============================================================================
-'  Exam reminder emails
+'  Exam emails
 '  Built for the SET Exam Committee. Reads the Exam sheet, resolves each
 '  person's address from the Emails sheet, and sends through Outlook.
+'
+'  Two kinds of email, on two sheets that work the same way:
+'
+'    Assignments  sent once, when an exam has been staffed - "you have been
+'                 assigned to proctor this"
+'    Reminders    sent two days before the exam - "this is happening on
+'                 Thursday, here is your room"
+'
+'  Whether each has gone out is recorded in a hidden ledger sheet, keyed by
+'  the exam itself, so rebuilding either list never loses the flags.
 ' ============================================================================
 
 ' Set to False to send silently with no confirmation box. Leave True while you
@@ -14,17 +24,26 @@ Public Const CONFIRM_BEFORE_SEND As Boolean = True
 ' "DISPLAY" - open the message in Outlook so you can read it and press Send
 Public Const SEND_MODE As String = "SEND"
 
+' How many days before an exam its reminder becomes due.
+Public Const REMIND_DAYS_BEFORE As Long = 2
+
 Private Const SH_EXAM As String = "Exam"
 Private Const SH_MAIL As String = "Emails"
 Private Const SH_REM As String = "Reminders"
+Private Const SH_ASSIGN As String = "Assignments"
 
-' Wording of the email lives on this sheet so it can be edited without
+' Hidden. One row per exam, holding when each kind of email was sent.
+Private Const SH_LEDGER As String = "_SentLog"
+
+' Wording of the emails lives on this sheet so it can be edited without
 ' opening the code. Blank cells fall back to the built-in text below.
 Private Const SH_TPL As String = "Message"
-Private Const CELL_SUBJ As String = "B4"
+Private Const CELL_SUBJ As String = "B4"     ' reminder
 Private Const CELL_BODY As String = "B6"
+Private Const CELL_ASUBJ As String = "B9"    ' assignment
+Private Const CELL_ABODY As String = "B11"
 
-Private Const FIRST_DATA_ROW As Long = 10   ' first exam row on Reminders
+Private Const FIRST_DATA_ROW As Long = 10   ' first exam row on either list
 Private Const EXAM_FIRST_ROW As Long = 6    ' first exam row on Exam sheet
 
 ' Room plan sheet. Every module-level declaration has to live up here in the
@@ -33,16 +52,13 @@ Private Const EXAM_FIRST_ROW As Long = 6    ' first exam row on Exam sheet
 Private Const SH_ROOMS As String = "Room Plan"
 Private Const ROOMS_FIRST_ROW As Long = 6
 
-' Cell holding the address to send from. Blank or "(default)" uses whichever
-' account Outlook would normally use.
+' Settings live on the Reminders sheet only, and apply to both kinds of email.
+' Keeping one copy avoids two sets of settings quietly drifting apart.
 Private Const CELL_SENDFROM As String = "B3"
 Private Const SENDFROM_DEFAULT As String = "(default account)"
-
-' Addresses copied on every single reminder, separated by ; or , - for people
-' who should see all of them (a chair, an assistant, the committee mailbox).
 Private Const CELL_ALWAYSCC As String = "E3"
 
-' Columns on the Reminders sheet
+' Columns, shared by the Reminders and Assignments sheets
 Private Const C_DATE As Long = 1
 Private Const C_DAY As Long = 2
 Private Const C_TIME As Long = 3
@@ -55,7 +71,12 @@ Private Const C_CC As Long = 9          ' coordinator
 Private Const C_MISSING As Long = 10
 Private Const C_STATUS As Long = 11
 Public Const C_SEND As Long = 12
-Private Const C_SENTLOG As Long = 13
+Private Const C_SENT As Long = 13       ' the flag: when it was sent
+Private Const C_DUE As Long = 14        ' whether it needs sending now
+
+' Kinds of email. Also the ledger's column offset.
+Private Const KIND_ASSIGN As String = "A"
+Private Const KIND_REMIND As String = "R"
 
 
 ' ---------------------------------------------------------------------------
@@ -80,10 +101,145 @@ Public Function EmailFor(ByVal personName As String) As String
 End Function
 
 
-' ---------------------------------------------------------------------------
-'  Rebuild the Reminders list from the Exam sheet
-' ---------------------------------------------------------------------------
-' Button target: rebuild, then report how many rows were written.
+' ===========================================================================
+'  The sent ledger
+' ===========================================================================
+'
+' Rebuilding a list clears its rows, so the flags cannot live in those rows.
+' They live here instead, keyed by the exam rather than by row number, which
+' means they also survive an exam moving up or down the Exam sheet.
+
+Private Function LedgerSheet() As Worksheet
+    Dim ws As Worksheet
+
+    On Error Resume Next
+    Set ws = ThisWorkbook.Worksheets(SH_LEDGER)
+    On Error GoTo 0
+
+    If ws Is Nothing Then
+        Set ws = ThisWorkbook.Worksheets.Add(After:= _
+                 ThisWorkbook.Worksheets(ThisWorkbook.Worksheets.Count))
+        ws.Name = SH_LEDGER
+        ws.Range("A1").Value = "Do not edit by hand. Records which emails have been sent."
+        ws.Range("A2").Value = "Exam key"
+        ws.Range("B2").Value = "Assignment sent"
+        ws.Range("C2").Value = "Reminder sent"
+        ws.Rows(2).Font.Bold = True
+        ws.Columns(1).ColumnWidth = 54
+        ws.Columns(2).ColumnWidth = 20
+        ws.Columns(3).ColumnWidth = 20
+        ws.Columns("B:C").NumberFormat = "@"   ' keep stamps as text
+        ws.Visible = xlSheetHidden
+    End If
+
+    Set LedgerSheet = ws
+End Function
+
+
+' Identifies an exam independently of where it sits on any sheet.
+Private Function ExamKey(ByVal dt As Variant, ByVal tm As String, _
+                         ByVal course As String) As String
+    Dim d As String
+    If IsDate(dt) Then d = Format$(CDate(dt), "yyyy-mm-dd") Else d = "nodate"
+    ExamKey = d & " | " & Trim$(tm) & " | " & Trim$(course)
+End Function
+
+
+Private Function KeyOfRow(ByVal sh As String, ByVal r As Long) As String
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Worksheets(sh)
+    KeyOfRow = ExamKey(ws.Cells(r, C_DATE).Value, _
+                       CStr(ws.Cells(r, C_TIME).Value), _
+                       CStr(ws.Cells(r, C_COURSE).Value))
+End Function
+
+
+Private Function LedgerRow(ByVal key As String, ByVal createIfMissing As Boolean) As Long
+    Dim ws As Worksheet, r As Long, lastRow As Long
+
+    Set ws = LedgerSheet()
+    lastRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+    For r = 3 To lastRow
+        If StrComp(Trim$(CStr(ws.Cells(r, 1).Value)), key, vbTextCompare) = 0 Then
+            LedgerRow = r
+            Exit Function
+        End If
+    Next r
+
+    If createIfMissing Then
+        r = lastRow + 1
+        If r < 3 Then r = 3
+        ws.Cells(r, 1).Value = key
+        LedgerRow = r
+    Else
+        LedgerRow = 0
+    End If
+End Function
+
+
+' When this kind of email was sent for this exam, or "" if it never was.
+Private Function SentStamp(ByVal kind As String, ByVal key As String) As String
+    Dim r As Long, col As Long
+    SentStamp = ""
+    r = LedgerRow(key, False)
+    If r = 0 Then Exit Function
+    col = IIf(kind = KIND_ASSIGN, 2, 3)
+    SentStamp = Trim$(CStr(LedgerSheet().Cells(r, col).Value))
+End Function
+
+
+Private Sub MarkSent(ByVal kind As String, ByVal key As String)
+    Dim r As Long, col As Long
+    r = LedgerRow(key, True)
+    col = IIf(kind = KIND_ASSIGN, 2, 3)
+    LedgerSheet().Cells(r, col).NumberFormat = "@"
+    LedgerSheet().Cells(r, col).Value = Format$(Now(), "d mmm yyyy hh:mm")
+End Sub
+
+
+' Button target: let the committee undo a flag when something needs resending.
+Public Sub ClearSentFlag()
+    Dim sh As String, r As Long, key As String, kind As String
+
+    sh = ActiveSheet.Name
+    If sh <> SH_REM And sh <> SH_ASSIGN Then
+        MsgBox "Use this on the Reminders or Assignments sheet.", _
+               vbInformation + vbSystemModal, "Clear flag"
+        Exit Sub
+    End If
+
+    r = ActiveCell.Row
+    If r < FIRST_DATA_ROW Or Len(Trim$(CStr(ActiveSheet.Cells(r, C_COURSE).Value))) = 0 Then
+        MsgBox "Click the exam row you want to clear first.", _
+               vbInformation + vbSystemModal, "Clear flag"
+        Exit Sub
+    End If
+
+    kind = IIf(sh = SH_ASSIGN, KIND_ASSIGN, KIND_REMIND)
+    key = KeyOfRow(sh, r)
+
+    If Len(SentStamp(kind, key)) = 0 Then
+        MsgBox "That one has not been sent yet.", vbInformation + vbSystemModal, "Clear flag"
+        Exit Sub
+    End If
+
+    If MsgBox("Clear the sent flag for:" & vbCrLf & vbCrLf & _
+              ActiveSheet.Cells(r, C_COURSE).Value & vbCrLf & _
+              Format$(ActiveSheet.Cells(r, C_DATE).Value, "d mmm yyyy") & vbCrLf & vbCrLf & _
+              "It will then be treated as never sent, and can be sent again.", _
+              vbYesNo + vbQuestion + vbSystemModal, "Clear flag") <> vbYes Then Exit Sub
+
+    LedgerSheet().Cells(LedgerRow(key, True), IIf(kind = KIND_ASSIGN, 2, 3)).ClearContents
+    If sh = SH_ASSIGN Then RefreshAssignmentsCore Else RefreshRemindersCore
+    MsgBox "Flag cleared.", vbInformation + vbSystemModal, "Clear flag"
+End Sub
+
+
+' ===========================================================================
+'  Rebuilding the two lists
+' ===========================================================================
+
 Public Sub RefreshReminders()
     Dim n As Long
     n = RefreshRemindersCore()
@@ -92,17 +248,37 @@ Public Sub RefreshReminders()
 End Sub
 
 
-' The work itself, with no dialogs, so it can also be driven from outside.
+Public Sub RefreshAssignments()
+    Dim n As Long
+    n = RefreshAssignmentsCore()
+    MsgBox "Assignment list rebuilt." & vbCrLf & vbCrLf & _
+           n & " exam(s) listed.", vbInformation, "Assignments"
+End Sub
+
+
 Public Function RefreshRemindersCore() As Long
+    RefreshRemindersCore = BuildList(SH_REM, KIND_REMIND)
+End Function
+
+
+Public Function RefreshAssignmentsCore() As Long
+    RefreshAssignmentsCore = BuildList(SH_ASSIGN, KIND_ASSIGN)
+End Function
+
+
+' One builder for both sheets. They hold the same columns and differ only in
+' which flag they read and what "needs sending" means.
+Private Function BuildList(ByVal sh As String, ByVal kind As String) As Long
     Dim wsE As Worksheet, wsR As Worksheet
     Dim rE As Long, rR As Long, lastE As Long, c As Long
     Dim course As String, coord As String, procs As String
     Dim toList As String, ccList As String, missing As String
-    Dim addr As String, nm As String
-    Dim dt As Variant, startT As String, endT As String
+    Dim addr As String, nm As String, stamp As String, due As String
+    Dim dt As Variant, startT As String, endT As String, tm As String
+    Dim days As Long
 
     Set wsE = ThisWorkbook.Worksheets(SH_EXAM)
-    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+    Set wsR = ThisWorkbook.Worksheets(sh)
 
     ' Any exit from here on must put these back, or Excel is left looking
     ' frozen with a stale screen and dead click handlers.
@@ -112,10 +288,12 @@ Public Function RefreshRemindersCore() As Long
 
     ' clear old rows but keep the header block
     If wsR.Cells(wsR.Rows.Count, 1).End(xlUp).Row >= FIRST_DATA_ROW Then
-        wsR.Range(wsR.Cells(FIRST_DATA_ROW, 1), _
-                  wsR.Cells(wsR.Rows.Count, C_SENTLOG)).ClearContents
-        wsR.Range(wsR.Cells(FIRST_DATA_ROW, 1), _
-                  wsR.Cells(wsR.Rows.Count, C_SENTLOG)).Interior.Pattern = xlNone
+        With wsR.Range(wsR.Cells(FIRST_DATA_ROW, 1), wsR.Cells(wsR.Rows.Count, C_DUE))
+            .ClearContents
+            .Interior.Pattern = xlNone
+            .Font.Color = RGB(0, 0, 0)
+            .Font.Bold = False
+        End With
     End If
 
     lastE = wsE.Cells(wsE.Rows.Count, 1).End(xlUp).Row
@@ -129,6 +307,7 @@ Public Function RefreshRemindersCore() As Long
 
             startT = FormatTime(wsE.Cells(rE, 6).Value)
             endT = FormatTime(wsE.Cells(rE, 7).Value)
+            tm = startT & IIf(Len(endT) > 0, " - " & endT, "")
 
             ' gather assigned proctors from K..T
             procs = ""
@@ -168,22 +347,59 @@ Public Function RefreshRemindersCore() As Long
                 End If
             End If
 
+            ccList = MergeCc(ccList, AlwaysCcList(), toList)
+
             wsR.Cells(rR, C_DATE).Value = dt
             wsR.Cells(rR, C_DATE).NumberFormat = "dd mmm yyyy"
             wsR.Cells(rR, C_DAY).Value = wsE.Cells(rE, 5).Value
-            wsR.Cells(rR, C_TIME).Value = startT & IIf(Len(endT) > 0, " - " & endT, "")
+            wsR.Cells(rR, C_TIME).Value = tm
             wsR.Cells(rR, C_COURSE).Value = course
             wsR.Cells(rR, C_ROOM).Value = _
                 IIf(Len(Trim$(CStr(wsE.Cells(rE, 8).Value))) = 0, "TBC", wsE.Cells(rE, 8).Value)
             wsR.Cells(rR, C_COORD).Value = coord
             wsR.Cells(rR, C_PROCS).Value = procs
-            ccList = MergeCc(ccList, AlwaysCcList(), toList)
-
             wsR.Cells(rR, C_TO).Value = toList
             wsR.Cells(rR, C_CC).Value = ccList
             wsR.Cells(rR, C_MISSING).Value = missing
             wsR.Cells(rR, C_STATUS).Value = StatusFor(dt)
             wsR.Cells(rR, C_SEND).Value = "Send"
+
+            ' --- the flag, read back from the ledger -----------------------
+            stamp = SentStamp(kind, ExamKey(dt, tm, course))
+            wsR.Cells(rR, C_SENT).NumberFormat = "@"
+            If Len(stamp) > 0 Then
+                wsR.Cells(rR, C_SENT).Value = stamp
+                wsR.Cells(rR, C_SENT).Font.Color = RGB(28, 107, 69)
+            Else
+                wsR.Cells(rR, C_SENT).Value = "not sent"
+                wsR.Cells(rR, C_SENT).Font.Color = RGB(150, 158, 170)
+            End If
+
+            ' --- does it need sending now? ---------------------------------
+            days = DaysUntil(dt)
+            due = ""
+            If Len(toList) = 0 Then
+                due = "no addresses"
+            ElseIf Len(stamp) > 0 Then
+                due = ""
+            ElseIf kind = KIND_ASSIGN Then
+                ' An assignment email is due as soon as the exam has proctors,
+                ' for as long as the exam is still ahead of us.
+                If days >= 0 Then due = "SEND"
+            Else
+                ' A reminder is due once the exam is within the window.
+                If days >= 0 And days <= REMIND_DAYS_BEFORE Then due = "SEND"
+            End If
+
+            wsR.Cells(rR, C_DUE).Value = due
+            If due = "SEND" Then
+                wsR.Cells(rR, C_DUE).Interior.Color = RGB(255, 242, 204)
+                wsR.Cells(rR, C_DUE).Font.Color = RGB(150, 100, 0)
+                wsR.Cells(rR, C_DUE).Font.Bold = True
+                wsR.Cells(rR, C_DUE).HorizontalAlignment = xlCenter
+            ElseIf due = "no addresses" Then
+                wsR.Cells(rR, C_DUE).Font.Color = RGB(166, 42, 34)
+            End If
 
             ' highlight anything that cannot be fully delivered
             If Len(missing) > 0 Then
@@ -204,16 +420,18 @@ Public Function RefreshRemindersCore() As Long
         End If
     Next rE
 
-    wsR.Rows(FIRST_DATA_ROW & ":" & (rR - 1)).RowHeight = 16
+    If rR > FIRST_DATA_ROW Then
+        wsR.Rows(FIRST_DATA_ROW & ":" & (rR - 1)).RowHeight = 16
+    End If
 
-    RefreshRemindersCore = rR - FIRST_DATA_ROW
+    BuildList = rR - FIRST_DATA_ROW
 
 Restore:
     Application.EnableEvents = True
     Application.ScreenUpdating = True
     If Err.Number <> 0 Then
         MsgBox "Could not rebuild the list." & vbCrLf & vbCrLf & _
-               Err.Description, vbCritical + vbSystemModal, "Reminders"
+               Err.Description, vbCritical + vbSystemModal, "Rebuild failed"
     End If
 End Function
 
@@ -243,15 +461,28 @@ Private Function FormatTime(ByVal v As Variant) As String
 End Function
 
 
-Private Function StatusFor(ByVal dt As Variant) As String
+' Whole days from today until the exam. Negative once it is past. A very large
+' negative number means the date could not be read at all.
+Private Function DaysUntil(ByVal dt As Variant) As Long
     If Not IsDate(dt) Then
+        DaysUntil = -32000
+    Else
+        DaysUntil = Int(CDate(dt)) - Int(Now())
+    End If
+End Function
+
+
+Private Function StatusFor(ByVal dt As Variant) As String
+    Dim n As Long
+    n = DaysUntil(dt)
+    If n = -32000 Then
         StatusFor = "No date"
-    ElseIf Int(CDate(dt)) < Int(Now()) Then
+    ElseIf n < 0 Then
         StatusFor = "Past"
-    ElseIf Int(CDate(dt)) = Int(Now()) Then
+    ElseIf n = 0 Then
         StatusFor = "Today"
     Else
-        StatusFor = Int(CDate(dt)) - Int(Now()) & " day(s)"
+        StatusFor = n & " day(s)"
     End If
 End Function
 
@@ -396,9 +627,6 @@ End Function
 
 
 ' ---------------------------------------------------------------------------
-'  Build the message for one row
-' ---------------------------------------------------------------------------
-' ---------------------------------------------------------------------------
 '  The wording, and the placeholders it can use
 ' ---------------------------------------------------------------------------
 
@@ -420,6 +648,34 @@ Public Function DefaultBody() As String
         "before the start time." & vbCrLf & vbCrLf & _
         "If you cannot attend, reply to this message as early as you can so a" & vbCrLf & _
         "replacement can be arranged." & vbCrLf & vbCrLf & _
+        "Thank you," & vbCrLf & _
+        "Exam Committee" & vbCrLf & _
+        "School of Engineering and Technology"
+End Function
+
+
+' The assignment email. Deliberately different in tone from the reminder: it
+' announces a duty rather than restating an imminent one, and it says that a
+' reminder will follow so nobody expects this to be the only notice.
+Public Function DefaultAssignSubject() As String
+    DefaultAssignSubject = "Proctoring assignment - {course}, {day} {date}"
+End Function
+
+
+Public Function DefaultAssignBody() As String
+    DefaultAssignBody = _
+        "Dear colleagues," & vbCrLf & vbCrLf & _
+        "You have been assigned to proctor the exam below. Please check that" & vbCrLf & _
+        "the date and time do not clash with your teaching." & vbCrLf & vbCrLf & _
+        "Course:       {course}" & vbCrLf & _
+        "Date:         {day}, {longdate}" & vbCrLf & _
+        "Time:         {time}" & vbCrLf & _
+        "Students:     {students}" & vbCrLf & vbCrLf & _
+        "Proctors and rooms:" & vbCrLf & _
+        "{proctorrooms}" & vbCrLf & _
+        "If you cannot take this duty, reply now so it can be reassigned while" & vbCrLf & _
+        "there is still time. A reminder will follow two days before the exam" & vbCrLf & _
+        "with the final room." & vbCrLf & vbCrLf & _
         "Thank you," & vbCrLf & _
         "Exam Committee" & vbCrLf & _
         "School of Engineering and Technology"
@@ -469,11 +725,11 @@ End Function
 
 ' Each proctor with the room they are covering, using the same positional
 ' rule as the Room Plan sheet: first proctor takes the first room listed.
-Private Function ProctorRoomBlock(ByVal r As Long) As String
+Private Function ProctorRoomBlock(ByVal sh As String, ByVal r As Long) As String
     Dim wsR As Worksheet, procs() As String, rooms As Variant
     Dim i As Long, nRoom As Long, out As String, rm As String
 
-    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+    Set wsR = ThisWorkbook.Worksheets(sh)
     procs = Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")
     rooms = RoomsOf(CStr(wsR.Cells(r, C_ROOM).Value), nRoom)
 
@@ -489,9 +745,9 @@ End Function
 
 
 ' The numbered proctor list, as its own block so {proctors} can sit anywhere.
-Private Function ProctorBlock(ByVal r As Long) As String
+Private Function ProctorBlock(ByVal sh As String, ByVal r As Long) As String
     Dim wsR As Worksheet, parts() As String, i As Long, out As String
-    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+    Set wsR = ThisWorkbook.Worksheets(sh)
 
     parts = Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")
     For i = LBound(parts) To UBound(parts)
@@ -503,10 +759,36 @@ Private Function ProctorBlock(ByVal r As Long) As String
 End Function
 
 
+' Look the student count back up on the Exam sheet, since neither list carries
+' it. Matched on date, time and course - the same key the ledger uses.
+Private Function StudentsFor(ByVal sh As String, ByVal r As Long) As String
+    Dim wsE As Worksheet, wsR As Worksheet, rE As Long, lastE As Long
+    Dim want As String, tm As String
+
+    StudentsFor = ""
+    Set wsR = ThisWorkbook.Worksheets(sh)
+    Set wsE = ThisWorkbook.Worksheets(SH_EXAM)
+    want = KeyOfRow(sh, r)
+    lastE = wsE.Cells(wsE.Rows.Count, 1).End(xlUp).Row
+
+    For rE = EXAM_FIRST_ROW To lastE
+        tm = FormatTime(wsE.Cells(rE, 6).Value)
+        If Len(FormatTime(wsE.Cells(rE, 7).Value)) > 0 Then
+            tm = tm & " - " & FormatTime(wsE.Cells(rE, 7).Value)
+        End If
+        If ExamKey(wsE.Cells(rE, 4).Value, tm, CStr(wsE.Cells(rE, 1).Value)) = want Then
+            StudentsFor = Trim$(CStr(wsE.Cells(rE, 9).Value))
+            Exit Function
+        End If
+    Next rE
+End Function
+
+
 ' Swap every {placeholder} for this row's value.
-Private Function FillTemplate(ByVal tpl As String, ByVal r As Long) As String
+Private Function FillTemplate(ByVal tpl As String, ByVal sh As String, _
+                              ByVal r As Long) As String
     Dim wsR As Worksheet, s As String, d As Variant
-    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+    Set wsR = ThisWorkbook.Worksheets(sh)
 
     s = tpl
     d = wsR.Cells(r, C_DATE).Value
@@ -518,9 +800,10 @@ Private Function FillTemplate(ByVal tpl As String, ByVal r As Long) As String
     s = Replace(s, "{time}", CStr(wsR.Cells(r, C_TIME).Value))
     s = Replace(s, "{room}", CStr(wsR.Cells(r, C_ROOM).Value))
     s = Replace(s, "{coordinator}", CStr(wsR.Cells(r, C_COORD).Value))
+    s = Replace(s, "{students}", StudentsFor(sh, r))
     s = Replace(s, "{proctorlist}", CStr(wsR.Cells(r, C_PROCS).Value))
-    s = Replace(s, "{proctorrooms}", ProctorRoomBlock(r))
-    s = Replace(s, "{proctors}", ProctorBlock(r))
+    s = Replace(s, "{proctorrooms}", ProctorRoomBlock(sh, r))
+    s = Replace(s, "{proctors}", ProctorBlock(sh, r))
     s = Replace(s, "{rooms}", CStr(wsR.Cells(r, C_ROOM).Value))
     s = Replace(s, "{count}", CStr(UBound(Split(CStr(wsR.Cells(r, C_PROCS).Value), ", ")) + 1))
 
@@ -528,18 +811,24 @@ Private Function FillTemplate(ByVal tpl As String, ByVal r As Long) As String
 End Function
 
 
-Public Sub BuildMessage(ByVal r As Long, ByRef toList As String, ByRef ccList As String, _
+Public Sub BuildMessage(ByVal sh As String, ByVal r As Long, ByVal kind As String, _
+                        ByRef toList As String, ByRef ccList As String, _
                         ByRef subj As String, ByRef body As String)
     Dim wsR As Worksheet
-    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+    Set wsR = ThisWorkbook.Worksheets(sh)
 
     toList = Trim$(CStr(wsR.Cells(r, C_TO).Value))
     ' Applied again here so a change to the always-Cc box takes effect even if
     ' the list has not been refreshed since. MergeCc will not duplicate.
     ccList = MergeCc(Trim$(CStr(wsR.Cells(r, C_CC).Value)), AlwaysCcList(), toList)
 
-    subj = FillTemplate(Template(CELL_SUBJ, DefaultSubject()), r)
-    body = FillTemplate(Template(CELL_BODY, DefaultBody()), r)
+    If kind = KIND_ASSIGN Then
+        subj = FillTemplate(Template(CELL_ASUBJ, DefaultAssignSubject()), sh, r)
+        body = FillTemplate(Template(CELL_ABODY, DefaultAssignBody()), sh, r)
+    Else
+        subj = FillTemplate(Template(CELL_SUBJ, DefaultSubject()), sh, r)
+        body = FillTemplate(Template(CELL_BODY, DefaultBody()), sh, r)
+    End If
 End Sub
 
 
@@ -555,12 +844,15 @@ Public Sub ResetMessageTemplate()
         Exit Sub
     End If
 
-    If MsgBox("Replace the subject and body with the original wording?" & vbCrLf & vbCrLf & _
+    If MsgBox("Replace both the reminder and assignment wording with the " & _
+              "original text?" & vbCrLf & vbCrLf & _
               "Anything you have written there will be lost.", _
               vbYesNo + vbExclamation + vbSystemModal, "Reset wording") <> vbYes Then Exit Sub
 
     ws.Range(CELL_SUBJ).Value = DefaultSubject()
     ws.Range(CELL_BODY).Value = DefaultBody()
+    ws.Range(CELL_ASUBJ).Value = DefaultAssignSubject()
+    ws.Range(CELL_ABODY).Value = DefaultAssignBody()
     MsgBox "Original wording restored.", vbInformation + vbSystemModal, "Template"
 End Sub
 
@@ -568,37 +860,43 @@ End Sub
 ' ---------------------------------------------------------------------------
 '  Send one row
 ' ---------------------------------------------------------------------------
-Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As Boolean
+Public Function SendEmailRow(ByVal sh As String, ByVal r As Long, _
+                             ByVal kind As String, ByVal askFirst As Boolean) As Boolean
     Dim wsR As Worksheet
     Dim toList As String, ccList As String, subj As String, body As String, missing As String
-    Dim ol As Object, mail As Object
+    Dim ol As Object, mail As Object, label As String, stamp As String
     Dim answer As VbMsgBoxResult
 
-    SendReminderRow = False
-    Set wsR = ThisWorkbook.Worksheets(SH_REM)
+    SendEmailRow = False
+    Set wsR = ThisWorkbook.Worksheets(sh)
+    label = IIf(kind = KIND_ASSIGN, "assignment", "reminder")
 
     If Len(Trim$(CStr(wsR.Cells(r, C_COURSE).Value))) = 0 Then Exit Function
 
-    BuildMessage r, toList, ccList, subj, body
+    BuildMessage sh, r, kind, toList, ccList, subj, body
     missing = Trim$(CStr(wsR.Cells(r, C_MISSING).Value))
 
     If Len(toList) = 0 Then
         MsgBox "No email addresses for this exam." & vbCrLf & vbCrLf & _
                "Add addresses on the Emails sheet, then press Refresh list.", _
-               vbExclamation, "Nothing to send"
+               vbExclamation + vbSystemModal, "Nothing to send"
         Exit Function
     End If
 
+    stamp = SentStamp(kind, KeyOfRow(sh, r))
+
     If askFirst Then
-        answer = MsgBox("Send this reminder?" & vbCrLf & vbCrLf & _
+        answer = MsgBox("Send this " & label & "?" & vbCrLf & vbCrLf & _
                         wsR.Cells(r, C_COURSE).Value & vbCrLf & _
                         Format$(wsR.Cells(r, C_DATE).Value, "d mmm yyyy") & "  " & _
                         wsR.Cells(r, C_TIME).Value & vbCrLf & vbCrLf & _
                         "From: " & SenderLabel() & vbCrLf & vbCrLf & _
                         "To:" & vbCrLf & Replace(toList, "; ", vbCrLf) & vbCrLf & _
                         IIf(Len(ccList) > 0, vbCrLf & "Cc:" & vbCrLf & ccList & vbCrLf, "") & _
-                        IIf(Len(missing) > 0, vbCrLf & "NO ADDRESS FOR: " & missing & vbCrLf, ""), _
-                        vbYesNo + vbQuestion + vbSystemModal, "Confirm reminder")
+                        IIf(Len(missing) > 0, vbCrLf & "NO ADDRESS FOR: " & missing & vbCrLf, "") & _
+                        IIf(Len(stamp) > 0, vbCrLf & "ALREADY SENT " & stamp & _
+                            " - this would be a second one." & vbCrLf, ""), _
+                        vbYesNo + vbQuestion + vbSystemModal, "Confirm " & label)
         If answer <> vbYes Then Exit Function
     End If
 
@@ -626,9 +924,16 @@ Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As B
     Application.StatusBar = False
     On Error GoTo 0
 
-    wsR.Cells(r, C_SENTLOG).Value = "Sent " & Format$(Now(), "d mmm hh:mm")
-    wsR.Cells(r, C_SENTLOG).Font.Color = RGB(28, 107, 69)
-    SendReminderRow = True
+    ' Record it in the ledger first - that is the copy that survives a rebuild -
+    ' then show it on the row.
+    MarkSent kind, KeyOfRow(sh, r)
+    wsR.Cells(r, C_SENT).NumberFormat = "@"
+    wsR.Cells(r, C_SENT).Value = SentStamp(kind, KeyOfRow(sh, r))
+    wsR.Cells(r, C_SENT).Font.Color = RGB(28, 107, 69)
+    wsR.Cells(r, C_DUE).Value = ""
+    wsR.Cells(r, C_DUE).Interior.Pattern = xlNone
+
+    SendEmailRow = True
     Exit Function
 
 NoOutlook:
@@ -639,6 +944,17 @@ NoOutlook:
            "is used." & vbCrLf & vbCrLf & _
            "(" & Err.Description & ")", _
            vbCritical + vbSystemModal, "Outlook not available"
+End Function
+
+
+' Kept so the Reminders sheet's own double-click handler keeps working.
+Public Function SendReminderRow(ByVal r As Long, ByVal askFirst As Boolean) As Boolean
+    SendReminderRow = SendEmailRow(SH_REM, r, KIND_REMIND, askFirst)
+End Function
+
+
+Public Function SendAssignmentRow(ByVal r As Long, ByVal askFirst As Boolean) As Boolean
+    SendAssignmentRow = SendEmailRow(SH_ASSIGN, r, KIND_ASSIGN, askFirst)
 End Function
 
 
@@ -678,7 +994,7 @@ End Function
 
 
 ' ---------------------------------------------------------------------------
-'  Which address the reminders are sent from
+'  Which address the emails are sent from
 ' ---------------------------------------------------------------------------
 
 ' Apply the address chosen in B3 to one message.
@@ -780,7 +1096,7 @@ Public Sub RefreshSendAccounts()
         .IgnoreBlank = True
         .InCellDropdown = True
         .InputTitle = "Send from"
-        .InputMessage = "Pick which account the reminders are sent from."
+        .InputMessage = "Pick which account the emails are sent from."
     End With
 
     If Len(Trim$(CStr(ws.Range(CELL_SENDFROM).Value))) = 0 Then
@@ -789,7 +1105,8 @@ Public Sub RefreshSendAccounts()
 
     MsgBox "Found " & accs.Count & " account(s) in Outlook." & vbCrLf & vbCrLf & _
            Replace(Mid$(list, Len(SENDFROM_DEFAULT) + 2), ",", vbCrLf) & vbCrLf & vbCrLf & _
-           "Pick one in the 'Send from' box." & vbCrLf & vbCrLf & _
+           "Pick one in the 'Send from' box. It applies to both the " & _
+           "assignment and the reminder emails." & vbCrLf & vbCrLf & _
            "Only accounts added to the classic Outlook desktop app appear here. " & _
            "An address that lives only in the new Outlook app cannot be used, " & _
            "but you can still type an alias or shared mailbox into the box by hand.", _
@@ -843,36 +1160,64 @@ End Sub
 
 
 ' ---------------------------------------------------------------------------
-'  Button targets
+'  Button targets - Reminders sheet
 ' ---------------------------------------------------------------------------
 Public Sub SendSelectedReminder()
-    Dim r As Long
-    r = ActiveCell.Row
-    If r < FIRST_DATA_ROW Then
-        MsgBox "Click any exam row first, then press this button.", _
-               vbInformation, "Pick a row"
-        Exit Sub
-    End If
-    If SendReminderRow(r, CONFIRM_BEFORE_SEND) Then
-        MsgBox "Reminder sent.", vbInformation, "Done"
-    End If
+    SendSelectedOn SH_REM, KIND_REMIND
 End Sub
 
 
 Public Sub PreviewSelectedReminder()
+    PreviewSelectedOn SH_REM, KIND_REMIND
+End Sub
+
+
+' ---------------------------------------------------------------------------
+'  Button targets - Assignments sheet
+' ---------------------------------------------------------------------------
+Public Sub SendSelectedAssignment()
+    SendSelectedOn SH_ASSIGN, KIND_ASSIGN
+End Sub
+
+
+Public Sub PreviewSelectedAssignment()
+    PreviewSelectedOn SH_ASSIGN, KIND_ASSIGN
+End Sub
+
+
+' ---------------------------------------------------------------------------
+'  Shared button behaviour
+' ---------------------------------------------------------------------------
+Private Sub SendSelectedOn(ByVal sh As String, ByVal kind As String)
+    Dim r As Long
+    r = ActiveCell.Row
+    If r < FIRST_DATA_ROW Then
+        MsgBox "Click any exam row first, then press this button.", _
+               vbInformation + vbSystemModal, "Pick a row"
+        Exit Sub
+    End If
+    If SendEmailRow(sh, r, kind, CONFIRM_BEFORE_SEND) Then
+        MsgBox IIf(kind = KIND_ASSIGN, "Assignment sent.", "Reminder sent."), _
+               vbInformation + vbSystemModal, "Done"
+    End If
+End Sub
+
+
+Private Sub PreviewSelectedOn(ByVal sh As String, ByVal kind As String)
     Dim r As Long, toList As String, ccList As String, subj As String, body As String
     Dim ol As Object, mail As Object
 
     r = ActiveCell.Row
     If r < FIRST_DATA_ROW Then
         MsgBox "Click any exam row first, then press this button.", _
-               vbInformation, "Pick a row"
+               vbInformation + vbSystemModal, "Pick a row"
         Exit Sub
     End If
 
-    BuildMessage r, toList, ccList, subj, body
+    BuildMessage sh, r, kind, toList, ccList, subj, body
     If Len(toList) = 0 Then
-        MsgBox "No addresses yet for this exam.", vbExclamation, "Nothing to preview"
+        MsgBox "No addresses yet for this exam.", vbExclamation + vbSystemModal, _
+               "Nothing to preview"
         Exit Sub
     End If
 
@@ -906,39 +1251,111 @@ NoOutlook:
 End Sub
 
 
+' ---------------------------------------------------------------------------
+'  Send everything that is due
+' ---------------------------------------------------------------------------
+'
+' "Due" is whatever the rebuild marked SEND in the last column: an exam that
+' still lies ahead, has addresses, and has not had this kind of email yet.
+' For reminders that also means it is within REMIND_DAYS_BEFORE days.
+
+Public Sub SendDueReminders()
+    SendAllDueOn SH_REM, KIND_REMIND
+End Sub
+
+
+Public Sub SendDueAssignments()
+    SendAllDueOn SH_ASSIGN, KIND_ASSIGN
+End Sub
+
+
+Private Sub SendAllDueOn(ByVal sh As String, ByVal kind As String)
+    Dim wsR As Worksheet, r As Long, lastRow As Long
+    Dim n As Long, sent As Long, answer As VbMsgBoxResult
+    Dim label As String, list As String
+
+    Set wsR = ThisWorkbook.Worksheets(sh)
+    label = IIf(kind = KIND_ASSIGN, "assignment", "reminder")
+    lastRow = wsR.Cells(wsR.Rows.Count, C_COURSE).End(xlUp).Row
+
+    n = 0
+    list = ""
+    For r = FIRST_DATA_ROW To lastRow
+        If CStr(wsR.Cells(r, C_DUE).Value) = "SEND" Then
+            n = n + 1
+            If n <= 12 Then
+                list = list & "  " & Format$(wsR.Cells(r, C_DATE).Value, "d mmm") & _
+                       "  " & wsR.Cells(r, C_COURSE).Value & vbCrLf
+            End If
+        End If
+    Next r
+
+    If n = 0 Then
+        MsgBox "Nothing is due." & vbCrLf & vbCrLf & _
+               IIf(kind = KIND_ASSIGN, _
+                   "Every upcoming exam has already had its assignment email.", _
+                   "No exam is within " & REMIND_DAYS_BEFORE & _
+                   " days and still waiting for a reminder.") & vbCrLf & vbCrLf & _
+               "Press Refresh list first if you have just changed the Exam sheet.", _
+               vbInformation + vbSystemModal, "Nothing due"
+        Exit Sub
+    End If
+
+    If n > 12 Then list = list & "  ... and " & (n - 12) & " more" & vbCrLf
+
+    answer = MsgBox("Send " & n & " " & label & " email(s)?" & vbCrLf & vbCrLf & _
+                    list & vbCrLf & _
+                    "From: " & SenderLabel() & vbCrLf & vbCrLf & _
+                    "Each exam gets one email to its proctors.", _
+                    vbYesNo + vbExclamation + vbSystemModal, "Send due " & label & "s")
+    If answer <> vbYes Then Exit Sub
+
+    sent = 0
+    For r = FIRST_DATA_ROW To lastRow
+        If CStr(wsR.Cells(r, C_DUE).Value) = "SEND" Then
+            If SendEmailRow(sh, r, kind, False) Then sent = sent + 1
+        End If
+    Next r
+
+    MsgBox sent & " " & label & " email(s) sent." & _
+           IIf(sent < n, vbCrLf & vbCrLf & (n - sent) & " could not be sent.", ""), _
+           vbInformation + vbSystemModal, "Done"
+End Sub
+
+
+' Kept for the old button caption. Sends every upcoming reminder, due or not.
 Public Sub SendAllUpcoming()
     Dim wsR As Worksheet, r As Long, lastRow As Long
     Dim n As Long, sent As Long, answer As VbMsgBoxResult
-    Dim status As String
 
     Set wsR = ThisWorkbook.Worksheets(SH_REM)
     lastRow = wsR.Cells(wsR.Rows.Count, C_COURSE).End(xlUp).Row
 
     n = 0
     For r = FIRST_DATA_ROW To lastRow
-        status = CStr(wsR.Cells(r, C_STATUS).Value)
-        If status <> "Past" And Len(Trim$(CStr(wsR.Cells(r, C_TO).Value))) > 0 Then
-            n = n + 1
-        End If
+        If CStr(wsR.Cells(r, C_STATUS).Value) <> "Past" _
+           And Len(Trim$(CStr(wsR.Cells(r, C_TO).Value))) > 0 Then n = n + 1
     Next r
 
     If n = 0 Then
-        MsgBox "Nothing upcoming to send.", vbInformation, "Reminders"
+        MsgBox "Nothing upcoming to send.", vbInformation + vbSystemModal, "Reminders"
         Exit Sub
     End If
 
     answer = MsgBox("Send reminders for ALL " & n & " upcoming exam(s)?" & vbCrLf & vbCrLf & _
-                    "This sends " & n & " separate emails.", _
-                    vbYesNo + vbExclamation, "Send all upcoming")
+                    "This ignores the two-day rule and the sent flags, and " & _
+                    "sends " & n & " separate emails." & vbCrLf & vbCrLf & _
+                    "Use 'Send due reminders' for the normal case.", _
+                    vbYesNo + vbExclamation + vbSystemModal, "Send all upcoming")
     If answer <> vbYes Then Exit Sub
 
     sent = 0
     For r = FIRST_DATA_ROW To lastRow
-        status = CStr(wsR.Cells(r, C_STATUS).Value)
-        If status <> "Past" And Len(Trim$(CStr(wsR.Cells(r, C_TO).Value))) > 0 Then
-            If SendReminderRow(r, False) Then sent = sent + 1
+        If CStr(wsR.Cells(r, C_STATUS).Value) <> "Past" _
+           And Len(Trim$(CStr(wsR.Cells(r, C_TO).Value))) > 0 Then
+            If SendEmailRow(SH_REM, r, KIND_REMIND, False) Then sent = sent + 1
         End If
     Next r
 
-    MsgBox sent & " reminder(s) sent.", vbInformation, "Done"
+    MsgBox sent & " reminder(s) sent.", vbInformation + vbSystemModal, "Done"
 End Sub

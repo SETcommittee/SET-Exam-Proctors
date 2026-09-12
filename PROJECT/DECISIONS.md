@@ -274,3 +274,62 @@ no longer a page-level summary.
 
 ### Status
 ACTIVE
+
+---
+
+## DECISION-011
+
+### Date
+2026-09-12
+
+### Decision
+Record which emails have been sent in a hidden `_SentLog` sheet keyed by the
+exam, rather than in a column on the list sheets.
+
+### Reason
+Rebuilding either list clears its rows, so a flag kept in a row is wiped on
+every refresh. The committee refreshes constantly, so the system would forget
+what it had sent and people would be emailed repeatedly. Keying on the exam
+itself (date | time | course) also means a flag survives an exam moving up or
+down the Exam sheet.
+
+### Alternatives Considered
+- Reading the old rows back before clearing them - works, but breaks as soon
+  as an exam is reordered or temporarily removed.
+- Not clearing the rows at all - leaves stale rows for deleted exams.
+
+### Impact
+`_SentLog` must not be deleted; doing so makes every email look unsent.
+"Clear sent flag" is the supported way to undo one entry.
+
+### Status
+ACTIVE
+
+---
+
+## DECISION-012
+
+### Date
+2026-09-12
+
+### Decision
+Two emails on two sheets: an assignment email sent once when an exam is
+staffed, and the existing reminder sent within two days of the exam. Both are
+one email per exam, addressed to its proctors.
+
+### Reason
+Requested. The per-exam unit was chosen over per-person so the new sheet works
+exactly like the Reminders sheet the committee already knows.
+
+### Alternatives Considered
+- One email per person listing all their duties - reads better as an
+  announcement, but a different mental model from the existing sheet.
+- A separate email per person per exam - the most email for the least gain.
+
+### Impact
+`BuildList` and `SendEmailRow` are shared by both sheets, so the two cannot
+drift apart. Send-from and always-Cc stay on the Reminders sheet only and
+apply to both.
+
+### Status
+ACTIVE

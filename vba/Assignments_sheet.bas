@@ -1,7 +1,8 @@
 Option Explicit
 
 ' Live preview: whenever you click an exam row, the box at the top of this
-' sheet fills in with exactly what would be sent for that row.
+' sheet fills in with exactly what would be sent for that row. Same behaviour
+' as the Reminders sheet, but built from the assignment wording.
 Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Dim r As Long
     Dim toList As String, ccList As String, subj As String, body As String
@@ -14,7 +15,7 @@ Private Sub Worksheet_SelectionChange(ByVal Target As Range)
     Application.EnableEvents = False
     On Error GoTo Cleanup
 
-    BuildMessage Me.Name, r, "R", toList, ccList, subj, body
+    BuildMessage Me.Name, r, "A", toList, ccList, subj, body
 
     Me.Range("B4").Value = IIf(Len(toList) = 0, _
         "(no addresses yet - fill in the Emails sheet)", Replace(toList, "; ", "   "))
@@ -27,14 +28,14 @@ Cleanup:
 End Sub
 
 
-' Double-click a cell in the Send column to send that row's reminder.
+' Double-click a cell in the Send column to send that row's assignment email.
 Private Sub Worksheet_BeforeDoubleClick(ByVal Target As Range, Cancel As Boolean)
     If Target.Column <> C_SEND Then Exit Sub
     If Target.Row < 10 Then Exit Sub
     If Len(Trim$(CStr(Me.Cells(Target.Row, 4).Value))) = 0 Then Exit Sub
 
     Cancel = True
-    If SendReminderRow(Target.Row, CONFIRM_BEFORE_SEND) Then
-        MsgBox "Reminder sent.", vbInformation + vbSystemModal, "Done"
+    If SendAssignmentRow(Target.Row, CONFIRM_BEFORE_SEND) Then
+        MsgBox "Assignment sent.", vbInformation + vbSystemModal, "Done"
     End If
 End Sub

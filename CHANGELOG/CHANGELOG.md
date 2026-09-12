@@ -9,6 +9,59 @@ Routine `sync.cmd` data refreshes are summarised, not listed individually.
 
 ## Task
 
+Add a second kind of email - an assignment notice - and a durable sent flag
+for both kinds.
+
+## Changes
+
+- New **Assignments** sheet, same layout and behaviour as Reminders but with
+  its own wording: it announces a duty and says a reminder will follow.
+- New hidden **_SentLog** sheet recording when each kind of email was sent,
+  keyed by the exam rather than by row, so a rebuild never loses the flags
+  (DECISION-011). This was a latent bug: the old "Last sent" column was wiped
+  on every refresh.
+- Both list sheets gained a **Sent** column and a **Due** column. A reminder
+  is due within two days of the exam; an assignment is due as soon as the exam
+  is staffed. Either clears once sent.
+- New buttons: "Send due reminders", "Send all not yet sent", "Clear sent flag".
+- Message sheet now holds two sets of wording, reminder and assignment.
+- `BuildList` and `SendEmailRow` are shared by both sheets.
+
+## Files/Components Affected
+
+- `vba/mReminders.bas`, `vba/Reminders_sheet.bas`,
+  `vba/Assignments_sheet.bas` (new), `vba/update_vba.py`
+
+## Verification
+
+Installed on a copy first, then on the live workbook.
+
+- PASS - both lists build, 40 rows each; VBA compiles.
+- PASS - a flag written to the ledger survives a rebuild.
+- PASS - Due clears once an exam is marked sent.
+- PASS - assignment and reminder flags are independent for the same exam.
+- PASS - reminder Due appears only within two days (4 exams today).
+- PASS - the two emails read differently; committee wording preserved.
+- PASS - 40 of 43 addresses intact after installation.
+- NOT TESTED - a real send. Only the preview path has been exercised, as
+  before, since a test send would email colleagues.
+
+## Remaining Issues
+
+- Three coordinator addresses still missing.
+- No send has ever been exercised end to end.
+
+## Next Step
+
+Send one assignment email to a single exam to confirm the flag sets in
+practice, before using "Send all not yet sent".
+
+---
+
+# 2026-09-12
+
+## Task
+
 Set up the project memory and development-context system.
 
 ## Changes
