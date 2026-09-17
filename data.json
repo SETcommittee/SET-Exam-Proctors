@@ -1,13 +1,13 @@
 {
- "generatedAt": "2026-09-16T23:27:24+03:00",
+ "generatedAt": "2026-09-17T12:51:11+03:00",
  "sourceFile": "Proctor Schedule by Date.xlsm",
- "sourceModified": "2026-09-15T11:18:25+03:00",
+ "sourceModified": "2026-09-17T12:49:21+03:00",
  "windowStart": "2026-09-03",
  "summary": {
-  "exams": 36,
-  "totalStudents": 468,
-  "seatsRequired": 58,
-  "seatsAssigned": 58,
+  "exams": 40,
+  "totalStudents": 483,
+  "seatsRequired": 62,
+  "seatsAssigned": 62,
   "examsShort": 0,
   "seatsShort": 0,
   "examsWithoutTarget": 0,
@@ -726,7 +726,7 @@
   },
   {
    "id": "2026-09-20-placement-test-arabic-10:00",
-   "sourceRow": 46,
+   "sourceRow": 47,
    "course": "Placement Test - Arabic",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -756,8 +756,37 @@
    "notes": ""
   },
   {
+   "id": "2026-09-20-engineering-desgin-resubmission-11:00",
+   "sourceRow": 45,
+   "course": "Engineering Desgin (Resubmission)",
+   "coordinator": "Ala' Abdel Rahman Sanad Bani Issa",
+   "dept": "EE",
+   "date": "2026-09-20",
+   "day": "Sunday",
+   "start": "11:00",
+   "end": "14:00",
+   "time": "11:00 - 14:00",
+   "room": "TBC",
+   "rooms": [],
+   "assignments": [
+    {
+     "name": "Ala BaniIssa",
+     "room": ""
+    }
+   ],
+   "spareRooms": [],
+   "students": 15,
+   "required": 1,
+   "assigned": 1,
+   "shortfall": 0,
+   "proctors": [
+    "Ala BaniIssa"
+   ],
+   "notes": "Eng. Nezar is the Proctor (2 hrs, time TBC)"
+  },
+  {
    "id": "2026-09-20-placement-test-math-i-11:00",
-   "sourceRow": 47,
+   "sourceRow": 48,
    "course": "Placement Test - Math I",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -788,7 +817,7 @@
   },
   {
    "id": "2026-09-20-placement-test-math-ii-12:30",
-   "sourceRow": 48,
+   "sourceRow": 49,
    "course": "Placement Test - Math II",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -819,7 +848,7 @@
   },
   {
    "id": "2026-09-21-electrical-and-electronic-principles-re-submission-10:00",
-   "sourceRow": 45,
+   "sourceRow": 46,
    "course": "Electrical and Electronic Principles (Re-Submission)",
    "coordinator": "Rajaee Nassaer",
    "dept": "EE",
@@ -856,7 +885,38 @@
   },
   {
    "id": "2026-09-21-placement-test-arabic-10:00",
-   "sourceRow": 49,
+   "sourceRow": 50,
+   "course": "Placement Test - Arabic",
+   "coordinator": "Lutfi Al-Sharif",
+   "dept": "",
+   "date": "2026-09-21",
+   "day": "Monday",
+   "start": "10:00",
+   "end": "11:00",
+   "time": "10:00 - 11:00",
+   "room": "S-114",
+   "rooms": [
+    "S-114"
+   ],
+   "assignments": [
+    {
+     "name": "Anas Alshoubaki",
+     "room": "S-114"
+    }
+   ],
+   "spareRooms": [],
+   "students": null,
+   "required": 1,
+   "assigned": 1,
+   "shortfall": 0,
+   "proctors": [
+    "Anas Alshoubaki"
+   ],
+   "notes": ""
+  },
+  {
+   "id": "2026-09-21-placement-test-arabic-10:00",
+   "sourceRow": 53,
    "course": "Placement Test - Arabic",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -887,7 +947,38 @@
   },
   {
    "id": "2026-09-21-placement-test-math-i-11:00",
-   "sourceRow": 50,
+   "sourceRow": 51,
+   "course": "Placement Test - Math I",
+   "coordinator": "Lutfi Al-Sharif",
+   "dept": "",
+   "date": "2026-09-21",
+   "day": "Monday",
+   "start": "11:00",
+   "end": "12:30",
+   "time": "11:00 - 12:30",
+   "room": "S-114",
+   "rooms": [
+    "S-114"
+   ],
+   "assignments": [
+    {
+     "name": "Omar Aldabbas",
+     "room": "S-114"
+    }
+   ],
+   "spareRooms": [],
+   "students": null,
+   "required": 1,
+   "assigned": 1,
+   "shortfall": 0,
+   "proctors": [
+    "Omar Aldabbas"
+   ],
+   "notes": ""
+  },
+  {
+   "id": "2026-09-21-placement-test-math-i-11:00",
+   "sourceRow": 54,
    "course": "Placement Test - Math I",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -918,7 +1009,38 @@
   },
   {
    "id": "2026-09-21-placement-test-math-ii-12:30",
-   "sourceRow": 51,
+   "sourceRow": 52,
+   "course": "Placement Test - Math II",
+   "coordinator": "Lutfi Al-Sharif",
+   "dept": "",
+   "date": "2026-09-21",
+   "day": "Monday",
+   "start": "12:30",
+   "end": "14:00",
+   "time": "12:30 - 14:00",
+   "room": "S-114",
+   "rooms": [
+    "S-114"
+   ],
+   "assignments": [
+    {
+     "name": "Malak Alghadi",
+     "room": "S-114"
+    }
+   ],
+   "spareRooms": [],
+   "students": null,
+   "required": 1,
+   "assigned": 1,
+   "shortfall": 0,
+   "proctors": [
+    "Malak Alghadi"
+   ],
+   "notes": ""
+  },
+  {
+   "id": "2026-09-21-placement-test-math-ii-12:30",
+   "sourceRow": 55,
    "course": "Placement Test - Math II",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -949,7 +1071,7 @@
   },
   {
    "id": "2026-09-22-placement-test-english-10:00",
-   "sourceRow": 52,
+   "sourceRow": 56,
    "course": "Placement Test - English",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -980,7 +1102,7 @@
   },
   {
    "id": "2026-09-22-placement-test-english-11:00",
-   "sourceRow": 53,
+   "sourceRow": 57,
    "course": "Placement Test - English",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1011,7 +1133,7 @@
   },
   {
    "id": "2026-09-22-placement-test-english-12:00",
-   "sourceRow": 54,
+   "sourceRow": 58,
    "course": "Placement Test - English",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1042,7 +1164,7 @@
   },
   {
    "id": "2026-09-22-placement-test-english-13:00",
-   "sourceRow": 55,
+   "sourceRow": 59,
    "course": "Placement Test - English",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1073,7 +1195,7 @@
   },
   {
    "id": "2026-09-23-placement-test-arabic-10:00",
-   "sourceRow": 56,
+   "sourceRow": 60,
    "course": "Placement Test - Arabic",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1104,7 +1226,7 @@
   },
   {
    "id": "2026-09-23-placement-test-math-i-11:00",
-   "sourceRow": 57,
+   "sourceRow": 61,
    "course": "Placement Test - Math I",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1135,7 +1257,7 @@
   },
   {
    "id": "2026-09-23-placement-test-math-ii-12:30",
-   "sourceRow": 58,
+   "sourceRow": 62,
    "course": "Placement Test - Math II",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1166,7 +1288,7 @@
   },
   {
    "id": "2026-09-24-placement-test-arabic-10:00",
-   "sourceRow": 59,
+   "sourceRow": 63,
    "course": "Placement Test - Arabic",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1197,7 +1319,7 @@
   },
   {
    "id": "2026-09-24-placement-test-math-i-11:00",
-   "sourceRow": 60,
+   "sourceRow": 64,
    "course": "Placement Test - Math I",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1228,7 +1350,7 @@
   },
   {
    "id": "2026-09-24-placement-test-math-ii-12:30",
-   "sourceRow": 61,
+   "sourceRow": 65,
    "course": "Placement Test - Math II",
    "coordinator": "Lutfi Al-Sharif",
    "dept": "",
@@ -1284,18 +1406,20 @@
    "duties": [
     "2026-09-05-introduction-to-engineering-drawing-11:00",
     "2026-09-07-engineering-design-13:30",
-    "2026-09-09-virtual-engineering-11:00"
+    "2026-09-09-virtual-engineering-11:00",
+    "2026-09-20-engineering-desgin-resubmission-11:00"
    ],
-   "count": 3,
+   "count": 4,
    "onRoster": true
   },
   {
    "name": "Anas Alshoubaki",
    "duties": [
     "2026-09-06-functional-maths-13:30",
-    "2026-09-12-industrial-power-electronics-and-storage-13:00"
+    "2026-09-12-industrial-power-electronics-and-storage-13:00",
+    "2026-09-21-placement-test-arabic-10:00"
    ],
-   "count": 2,
+   "count": 3,
    "onRoster": true
   },
   {
@@ -1398,9 +1522,10 @@
    "duties": [
     "2026-09-07-engineering-math-11:00",
     "2026-09-12-data-analytics-13:30",
+    "2026-09-21-placement-test-math-ii-12:30",
     "2026-09-23-placement-test-arabic-10:00"
    ],
-   "count": 3,
+   "count": 4,
    "onRoster": true
   },
   {
@@ -1450,9 +1575,10 @@
    "duties": [
     "2026-09-06-operations-research-11:00",
     "2026-09-08-electrical-and-electronic-principles-13:30",
-    "2026-09-20-placement-test-math-i-11:00"
+    "2026-09-20-placement-test-math-i-11:00",
+    "2026-09-21-placement-test-math-i-11:00"
    ],
-   "count": 3,
+   "count": 4,
    "onRoster": true
   },
   {
@@ -1537,6 +1663,14 @@
    "dept": "EE",
    "sittings": [
     "2026-09-10-energy-efficiency-and-management-13:00"
+   ]
+  },
+  {
+   "course": "Engineering Desgin (Resubmission)",
+   "coordinator": "Ala' Abdel Rahman Sanad Bani Issa",
+   "dept": "EE",
+   "sittings": [
+    "2026-09-20-engineering-desgin-resubmission-11:00"
    ]
   },
   {
@@ -1642,6 +1776,7 @@
    "sittings": [
     "2026-09-20-placement-test-arabic-10:00",
     "2026-09-21-placement-test-arabic-10:00",
+    "2026-09-21-placement-test-arabic-10:00",
     "2026-09-23-placement-test-arabic-10:00",
     "2026-09-24-placement-test-arabic-10:00"
    ]
@@ -1664,6 +1799,7 @@
    "sittings": [
     "2026-09-20-placement-test-math-i-11:00",
     "2026-09-21-placement-test-math-i-11:00",
+    "2026-09-21-placement-test-math-i-11:00",
     "2026-09-23-placement-test-math-i-11:00",
     "2026-09-24-placement-test-math-i-11:00"
    ]
@@ -1674,6 +1810,7 @@
    "dept": "",
    "sittings": [
     "2026-09-20-placement-test-math-ii-12:30",
+    "2026-09-21-placement-test-math-ii-12:30",
     "2026-09-21-placement-test-math-ii-12:30",
     "2026-09-23-placement-test-math-ii-12:30",
     "2026-09-24-placement-test-math-ii-12:30"
