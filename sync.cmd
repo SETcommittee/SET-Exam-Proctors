@@ -6,6 +6,23 @@ REM ---------------------------------------------------------------------------
 setlocal
 cd /d "%~dp0"
 
+REM ---------------------------------------------------------------------------
+REM  The site was closed on 25 September 2026, after the September exam period.
+REM  index.html is now a hand-written "this period has ended" notice, and a
+REM  rebuild would overwrite it with the old schedule.
+REM
+REM  To reopen for the next exam period:
+REM    1. set WINDOW_START in build.py to the first day of that period
+REM    2. delete the four lines below, down to and including the "exit /b 0"
+REM    3. re-enable publishing: in .github\workflows\pages.yml, put back the
+REM       "push: branches: [main]" trigger
+REM ---------------------------------------------------------------------------
+echo.
+echo  The schedule site is CLOSED for the September 2026 exam period.
+echo  Nothing was rebuilt or published. See the notes inside this file to reopen it.
+pause
+exit /b 0
+
 echo.
 echo  Rebuilding from the Excel sheet...
 echo  ---------------------------------------------------------------
