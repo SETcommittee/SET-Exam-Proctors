@@ -5,6 +5,56 @@ Routine `sync.cmd` data refreshes are summarised, not listed individually.
 
 ---
 
+# 2026-09-25
+
+## Task
+
+Stop the website now that the September exam period is over.
+
+## Changes
+
+- `index.html` replaced with a hand-written closing notice: same palette and
+  typefaces as the schedule, one line of highlighter, the committee address,
+  and no proctor names, rooms, times or student counts. It is no longer a
+  generated file.
+- Deleted the generated `data.json` and `artifact.html`, so nothing on the
+  public web carries the roster any more. Both remain in history at `1f6e98c`
+  and both regenerate from the workbook.
+- `.github/workflows/pages.yml` lost its `push` trigger, so a commit no longer
+  republishes. `workflow_dispatch` is kept, so the committee can still deploy
+  by hand from the Actions tab without reopening the automation.
+- `sync.cmd` now stops with an explanation instead of rebuilding, which would
+  otherwise overwrite the notice with the old schedule.
+- Answers Q-01. See DECISION-013 for why a notice rather than a 404.
+
+## Files/Components Affected
+
+- `index.html`, `sync.cmd`, `.github/workflows/pages.yml`
+- deleted: `data.json`, `artifact.html`
+
+## Verification
+
+- PASS - the notice is live at the same URL, 200, 3.7 KB (was 67 KB).
+- PASS - `data.json` and `artifact.html` both return 404.
+- PASS - `robots.txt` and the `noindex` tag survive on the new page.
+- PASS - the deploy landed ~30 s after the push; the following push, which
+  removed the trigger, correctly published nothing.
+
+## Remaining Issues
+
+- GitHub Pages itself is still switched on. The link resolves, by design. Only
+  the repository owner can turn it off, in Settings - Pages, and that is a
+  deliberate second step the committee has not asked for.
+- The workbook side is untouched: the Reminders and Assignments sheets still
+  work, and no email has ever been sent end to end (T-00, unchanged).
+
+## Next Step
+
+None. The project is closed until the next exam period; reopening is three
+steps, written at the top of `sync.cmd`.
+
+---
+
 # 2026-09-12
 
 ## Task

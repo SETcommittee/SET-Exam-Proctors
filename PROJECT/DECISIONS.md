@@ -333,3 +333,41 @@ apply to both.
 
 ### Status
 ACTIVE
+
+---
+
+## DECISION-013
+
+### Date
+2026-09-25
+
+### Decision
+Close the site at the end of the September 2026 exam period by replacing the
+schedule with a notice, rather than deleting the page or switching GitHub Pages
+off. Publishing is stopped by removing the workflow's push trigger, and
+`sync.cmd` refuses to run.
+
+### Reason
+Requested once the exams were over. Roughly 21 staff have the link saved or
+forwarded; a 404 tells them nothing and reads as a fault. A notice ends the
+period cleanly and keeps the same URL for the next one. Removing `data.json`
+and `artifact.html` takes every proctor name, room and student count off the
+public web, which was the standing privacy concern (DECISION-003).
+
+### Alternatives Considered
+- Switch Pages off in repository settings - the most complete stop, but the
+  link 404s and the setting has to be found again to reopen. Still available
+  as a second step if the committee wants the URL dead.
+- Leave the September schedule up as a public record - no, it is staff data
+  with no reason to stay online.
+- Make the repository private - Pages then stops serving on the free tier, but
+  that is the same 404 by a longer route.
+
+### Impact
+`index.html` is now hand-written and **not generated**. Running `build.py`
+would overwrite it, so `sync.cmd` stops with an explanation before it can.
+Reopening is three steps, written at the top of `sync.cmd`: restore the window
+start, remove the guard, restore the push trigger.
+
+### Status
+ACTIVE

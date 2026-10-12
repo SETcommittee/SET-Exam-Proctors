@@ -2,20 +2,25 @@
 
 ## Last Updated
 
-2026-09-12
+2026-09-25
 
 ## Current Phase
 
-**Live and in use, mid exam period.** Build and feature work is essentially
-done; the project is in routine-operation mode. The exam period runs
-**3 – 21 September 2026**, so the site is being read by staff right now and
-the committee is refreshing it from Excel as assignments change.
+**Closed.** The exam period ran **3 – 21 September 2026** and is over. On
+25 September the site was stopped: the schedule was replaced with a closing
+notice, the roster data was removed from the public web, and automatic
+publishing was switched off (DECISION-013).
+
+Nothing is running and nothing is scheduled. The next work on this project
+would be reopening it for a new exam period.
 
 ## Current Objective
 
-Keep the published schedule accurate until the exam period ends. The email
-side has just gained a second message type, which needs one real send to
-confirm it behaves in practice.
+None. The project is dormant by request.
+
+To reopen: set `WINDOW_START` in `build.py` to the first day of the new period,
+delete the guard at the top of `sync.cmd`, and restore the `push` trigger in
+`.github/workflows/pages.yml`. All three are commented in place.
 
 ## Completed
 
@@ -35,12 +40,19 @@ confirm it behaves in practice.
 - [COMPLETED] Assignment emails on their own sheet, plus a durable sent flag
   for both kinds, held in a hidden `_SentLog` ledger.
 
+- [COMPLETED] Site closed at the end of the period: closing notice published,
+  roster data removed, publishing stopped.
+
 ## In Progress
 
-- [NEEDS VERIFICATION] The new **Assignments** sheet and the sent flags are
-  installed and tested against a copy and the live workbook, but no email has
-  actually been sent through either sheet yet.
-- Note: `_SentLog` **does not exist in the workbook yet**. It is created the
+Nothing.
+
+Left unfinished when the period ended, and now moot unless the project reopens:
+
+- [NEEDS VERIFICATION] The **Assignments** sheet and the sent flags are
+  installed and tested against a copy and the live workbook, but no email was
+  ever actually sent through either sheet.
+- Note: `_SentLog` may still **not exist in the workbook**. It is created the
   first time a list is refreshed or an email sent. Its absence is normal, not
   a failed installation.
 
@@ -63,7 +75,9 @@ confirm it behaves in practice.
   proctors; the coordinator is simply not Cc'd. Flagged in red on the
   `Reminders` sheet.
 - **The published page is world-readable.** Inherent to GitHub Pages on a free
-  account. Mitigated with `robots.txt` + `noindex`, not solved.
+  account. Mitigated with `robots.txt` + `noindex`, not solved. *Moot while
+  closed* — the live page now carries no names, rooms or times. It becomes live
+  again the moment the site reopens.
 - **Duplicate spellings of the same person** in the workbook (e.g. `Rajaie
   Nassar` / `Rajaie Ghassan Fawzi Nassar` / `Rajaee Nassaer`). Each spelling
   needs its own row in `Emails`. Flagged in column E.
@@ -72,6 +86,11 @@ confirm it behaves in practice.
 
 ## Recent Important Changes
 
+- 2026-09-25 — **site closed.** Closing notice published, `data.json` and
+  `artifact.html` deleted, push-to-deploy removed, `sync.cmd` guarded
+  (DECISION-013). Answers Q-01.
+- 2026-09-16 and 2026-09-17 — the committee's last two `sync.cmd` refreshes of
+  the period.
 - 2026-09-12 11:57 — added the Assignments sheet, the `_SentLog` ledger and
   the Sent/Due columns. Fixed a latent bug where refreshing wiped the sent log.
 - 2026-09-12 00:45 and 09:44 — two routine `sync.cmd` refreshes by the
@@ -92,10 +111,12 @@ confirm it behaves in practice.
 
 ## Next Recommended Task
 
-Send **one** assignment email, for a single exam, and confirm the Sent flag
-appears and survives a Refresh. That is the only part of the new work not yet
-proven in practice. Only then use "Send all not yet sent", which would email
-every upcoming exam at once.
+None. Do not restart work here without being asked.
+
+If the committee returns for a new exam period, reopen as described under
+*Current Objective*, then the first real task is still the one that was never
+finished: send **one** assignment email for a single exam and confirm the Sent
+flag survives a Refresh, before using "Send all not yet sent".
 
 ## Verification Status
 

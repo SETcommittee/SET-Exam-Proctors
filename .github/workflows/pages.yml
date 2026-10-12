@@ -1,12 +1,22 @@
 name: Deploy proctor site
 
-# Publishes the site to GitHub Pages whenever index.html or data.json changes
-# on main. The build itself runs on your machine (sync.cmd), because the source
-# workbook lives in OneDrive and is not part of this repository.
+# Publishes the site to GitHub Pages. The build itself runs on your machine
+# (sync.cmd), because the source workbook lives in OneDrive and is not part of
+# this repository.
+#
+# CLOSED 2026-09-25. The automatic push trigger is switched off, so an ordinary
+# commit no longer republishes anything. What is live is the closing notice.
+# To reopen for the next exam period, put the push trigger back:
+#
+#   on:
+#     push:
+#       branches: [main]
+#     workflow_dispatch:
+#
+# Until then the workflow can still be run by hand from the Actions tab, which
+# is how you would redeploy without reopening the automation.
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
