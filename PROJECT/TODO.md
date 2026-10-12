@@ -2,14 +2,16 @@
 
 Remaining work only. Current state lives in `PROJECT_STATUS.md`.
 
-Nothing here is committed work — the project is functionally complete and in
-routine use. These are open items and offers the user has not taken up.
+**The site closed on 2026-09-25**, at the end of the September exam period
+(DECISION-013). Everything below is parked, not pending: it only matters if
+the site reopens. Nothing here should be started unasked.
 
 ---
 
 # High Priority
 
-- [ ] **T-00 — Send one assignment email as a live test.**
+- [ ] **T-00 — Send one assignment email as a live test.** *(parked - the
+  period ended before this was done)*
   Everything about the new sheet is verified except an actual send. Do one
   exam, check the Sent flag appears, press Refresh, check it is still there.
   *Until this is done, avoid "Send all not yet sent".*
@@ -80,8 +82,9 @@ fixed and hardened on 2026-09-05 (DECISION-009).
 
 # User Decisions Required
 
-- [ ] **Q-01 — What happens after 21 September?** Keep the site running for the
-  next exam period, or retire it?
+- [x] **Q-01 — What happens after 21 September?** *Answered 2026-09-25:* stop
+  the site. Closed with a notice, not retired, so the URL survives for the
+  next period (DECISION-013).
 - [ ] **Q-02 — Should the repo move to an HTU-owned GitHub organisation?**
   It currently sits under `SETcommittee`, created from a personal account.
 - [ ] **Q-04 — Are any of T-03 to T-12 wanted** before the exam period ends?
